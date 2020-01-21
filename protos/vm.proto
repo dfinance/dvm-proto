@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package vm;
+package vm_grpc;
 
 // Type of contract (module or script).
 enum ContractType {

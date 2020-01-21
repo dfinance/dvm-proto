@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package ds;
+package ds_grpc;
 
 
 message DSAccessPath {

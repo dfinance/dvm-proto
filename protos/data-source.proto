@@ -24,6 +24,6 @@ message DSRawResponses {
 
 // GRPC service
 service DSService {
-    rpc get_raw (DSAccessPath) returns (DSRawResponse) {}
-    rpc multi_get_raw (DSAccessPaths) returns (DSRawResponses) {}
+    rpc GetRaw (DSAccessPath) returns (DSRawResponse) {}
+    rpc MultiGetRaw (DSAccessPaths) returns (DSRawResponses) {}
 }

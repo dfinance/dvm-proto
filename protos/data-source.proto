@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package ds_grpc;
+
+
+message DSAccessPath {
+    bytes address = 1; // AccountAddress
+    bytes path = 2;
+}
+
+message DSRawResponse {
+    bytes blob = 1;
+}
+
+
+message DSAccessPaths {
+    repeated DSAccessPath paths = 1;
+}
+
+message DSRawResponses {
+    repeated bytes blobs = 1;
+}
+
+
+// GRPC service
+service DSService {
+    rpc GetRaw (DSAccessPath) returns (DSRawResponse) {}
+    rpc MultiGetRaw (DSAccessPaths) returns (DSRawResponses) {}
+}

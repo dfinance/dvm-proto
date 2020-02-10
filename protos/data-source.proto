@@ -10,6 +10,14 @@ message DSAccessPath {
 
 message DSRawResponse {
     bytes blob = 1;
+    ErrorCode error_code = 2;
+    bytes error_message = 3;
+
+    enum ErrorCode {
+        NONE = 0;
+        BAD_REQUEST = 1;
+        NO_DATA = 2;
+    }
 }
 
 

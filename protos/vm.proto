@@ -113,3 +113,24 @@ message VMExecuteRequest {
 service VMService {
     rpc ExecuteContracts (VMExecuteRequest) returns (VMExecuteResponses) {}
 }
+
+// Compiler
+enum VmLang {
+    MvIr = 0;  // .mvir files
+    Move = 1;  // .move files
+}
+
+message SourceFile {
+    bytes source = 1;
+    ContractType type = 2;
+    VmLang lang = 3;
+    bytes address = 4;
+}
+
+message CompiledFile {
+    bytes bytecode = 1;
+}
+
+service VMCompiler {
+    rpc Compile (SourceFile) returns (CompiledFile) {}
+}

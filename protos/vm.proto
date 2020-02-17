@@ -113,3 +113,18 @@ message VMExecuteRequest {
 service VMService {
     rpc ExecuteContracts (VMExecuteRequest) returns (VMExecuteResponses) {}
 }
+
+message MvIrSourceFile {
+    bytes text = 1;
+    bytes address = 2;
+    ContractType type = 3;
+}
+
+message CompilationResult {
+    bytes bytecode = 1;
+    repeated bytes errors = 2;
+}
+
+service VMCompiler {
+    rpc Compile (MvIrSourceFile) returns (CompilationResult) {}
+}

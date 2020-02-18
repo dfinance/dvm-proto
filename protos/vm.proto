@@ -115,14 +115,14 @@ service VMService {
 }
 
 message MvIrSourceFile {
-    bytes text = 1;
+    string text = 1;
     bytes address = 2;
     ContractType type = 3;
 }
 
 message CompilationResult {
     bytes bytecode = 1;
-    repeated bytes errors = 2;
+    repeated string errors = 2;
 }
 
 service VMCompiler {

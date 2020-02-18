@@ -117,7 +117,7 @@ service VMService {
 message MvIrSourceFile {
     string text = 1;
     bytes address = 2;
-    bool is_module = 3;
+    ContractType type = 3;
 }
 
 message CompilationResult {

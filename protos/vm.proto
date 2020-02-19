@@ -113,3 +113,18 @@ message VMExecuteRequest {
 service VMService {
     rpc ExecuteContracts (VMExecuteRequest) returns (VMExecuteResponses) {}
 }
+
+message MvIrSourceFile {
+    string text = 1;  // utf8 encoded source code with bech32 addresses possible
+    bytes address = 2;  // address of the sender
+    ContractType type = 3;
+}
+
+message CompilationResult {
+    bytes bytecode = 1;  // bytecode of the compiled module/script
+    repeated string errors = 2;  // list of error messages, empty if successful
+}
+
+service VMCompiler {
+    rpc Compile (MvIrSourceFile) returns (CompilationResult) {}
+}

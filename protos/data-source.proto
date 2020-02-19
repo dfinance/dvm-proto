@@ -11,12 +11,12 @@ message DSAccessPath {
 message DSRawResponse {
     bytes blob = 1;
     ErrorCode error_code = 2;
-    bytes error_message = 3;
+    string error_message = 3;  // error message from libra
 
     enum ErrorCode {
-        NONE = 0;
-        BAD_REQUEST = 1;
-        NO_DATA = 2;
+        NONE = 0;  // no error
+        BAD_REQUEST = 1;  // crash of compilation, logs will show stacktrace
+        NO_DATA = 2;  // no such module
     }
 }
 

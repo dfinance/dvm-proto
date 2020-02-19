@@ -81,7 +81,7 @@ message VMArgs {
 
 // VM contract object to process.
 message VMContract {
-    bytes address = 1; // owner of contract (module) or script executor, bech32 form.
+    string address = 1; // owner of contract (module) or script executor, bech32 form.
     uint64 max_gas_amount = 2; // maximal total gas specified by wallet to spend for this transaction.
     uint64 gas_unit_price = 3; // maximal price can be paid per gas.
     bytes code = 4; // compiled contract code.

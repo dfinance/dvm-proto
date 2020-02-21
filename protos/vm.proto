@@ -30,6 +30,7 @@ enum VMTypeTag {
     Struct    = 4; // Structure (could be several arguments for event call).
     U8 = 5; // U8
     U128 = 6; // U128
+    U256 = 7; // u256
 }
 
 // Describing VMType for events.

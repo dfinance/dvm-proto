@@ -114,6 +114,8 @@ service VMService {
     rpc ExecuteContracts (VMExecuteRequest) returns (VMExecuteResponses) {}
 }
 
+
+// Compiler API
 message MvIrSourceFile {
     string text = 1;  // utf8 encoded source code with libra/bech32 addresses
     bytes address = 2;  // address of the sender, in bech32 form
@@ -127,4 +129,17 @@ message CompilationResult {
 
 service VMCompiler {
     rpc Compile (MvIrSourceFile) returns (CompilationResult) {}
+}
+
+// Script Arguments API
+message VMScript {
+    bytes code = 1;  // bytecode of script
+}
+
+message Signature {
+    repeated VMTypeTag arguments = 1;
+}
+
+service VMScriptMetadata {
+    rpc GetSignature (VMScript) returns (Signature) {} // return argument names/types for script
 }

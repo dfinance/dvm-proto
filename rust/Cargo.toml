@@ -1,0 +1,18 @@
+[package]
+name = "dvm-api"
+version = "0.1.0"
+authors = [
+    "Alex Koz. <alexanderkozlovskii@wings.ai>",
+    "Dm. Yakushev <dmitryyakushev@wings.ai>",
+    "Maxim Kurnikov <maximkurnikov@wings.ai>"
+    ]
+edition = "2018"
+
+build = "build.rs"
+
+[dependencies]
+tonic = "=0.1.1"
+prost = "=0.6"
+
+[build-dependencies]
+tonic-build = "=0.1.1"

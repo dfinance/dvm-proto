@@ -15,7 +15,7 @@ enum ContractStatus {
 }
 
 // Status of code contract execution.
-message VMErrorStatus {
+message VMStatus {
     uint64 major_status = 1; // Major error status.
     uint64 sub_status = 2; // Sub status if needed (optional).
     string message = 3; // Message with error details if needed (optional).
@@ -95,7 +95,7 @@ message VMExecuteResponse {
     repeated VMEvent events = 2; // list of events executed during contract execution
     uint64 gas_used = 3; // Gas used during execution.
     ContractStatus status = 4; // Status of contract execution.
-    VMErrorStatus statusStruct = 5; // Status in case of error.
+    VMStatus statusStruct = 5; // Status in case of error.
 }
 
 // Response from VM in case of execution multiplay contracts.

@@ -1,6 +1,6 @@
 /// Status of code contract execution.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VmErrorStatus {
+pub struct VmStatus {
     /// Major error status.
     #[prost(uint64, tag = "1")]
     pub major_status: u64,
@@ -125,7 +125,7 @@ pub struct VmExecuteResponse {
     pub status: i32,
     /// Status in case of error.
     #[prost(message, optional, tag = "5")]
-    pub status_struct: ::std::option::Option<VmErrorStatus>,
+    pub status_struct: ::std::option::Option<VmStatus>,
 }
 /// Response from VM in case of execution multiplay contracts.
 #[derive(Clone, PartialEq, ::prost::Message)]

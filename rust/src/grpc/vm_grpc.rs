@@ -1,7 +1,7 @@
 /// Status of code contract execution.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VmStatus {
-    /// Major error status.
+    /// Major status.
     #[prost(uint64, tag = "1")]
     pub major_status: u64,
     /// Sub status if needed (optional).
@@ -123,7 +123,7 @@ pub struct VmExecuteResponse {
     /// Status of contract execution.
     #[prost(enumeration = "ContractStatus", tag = "4")]
     pub status: i32,
-    /// Status in case of error.
+    /// Main status of execution, might contain an error.
     #[prost(message, optional, tag = "5")]
     pub status_struct: ::std::option::Option<VmStatus>,
 }

@@ -12,7 +12,6 @@ const PB_PATH: [&str; 2] = [
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=src/build.rs");
-    println!("cargo:rerun-if-changed=Cargo.lock");
 
     for path in PB_PATH.iter() {
         println!("rerun-if-changed={}", path);

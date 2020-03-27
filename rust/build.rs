@@ -13,10 +13,17 @@ const PB_PATH: [&str; 2] = [
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=src/build.rs");
 
+	 let protos = canonicalize("../protos/").map_err(|err| eprintln!("ERROR: protos-sources: {:?}", err)).unwrap();
+	 eprintln!("canonicalized protos-sources path: {:?}", protos);
+	 std::fs::read_dir(&protos).map(|res|res.for_each(|item| eprintln!("{:?}", item))).unwrap();
+
     for path in PB_PATH.iter() {
         println!("rerun-if-changed={}", path);
         println!("cargo:rerun-if-changed={}", path);
-        let path = canonicalize(path).expect("invalid path");
+        eprintln!("rel path: {}", path);
+        let mut sourcefile = protos.clone();
+        sourcefile.push(path);
+        eprintln!("canonicalized path: {:?}", sourcefile);
         let proto_path: &Path = path.as_ref();
         let proto_dir = proto_path
             .parent()

@@ -44,6 +44,10 @@ jobs:
       with:
         version: '3.x'
 
+    - name: chmod Protoc
+      shell: bash
+      run: "chmod +x `which protoc`"
+
     - name: Add GOBIN to PATH
       shell: bash
       run: echo "::add-path::$(go env GOPATH)/bin"

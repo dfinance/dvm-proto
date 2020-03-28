@@ -62,9 +62,7 @@ jobs:
 
     - name: Install dependencies
       shell: bash
-      run:
-      - go get -u github.com/golang/protobuf/protoc-gen-go
-      - go get -u google.golang.org/grpc
+      run: go get -u github.com/golang/protobuf/protoc-gen-go && go get -u google.golang.org/grpc
 
     - name: Build
       shell: bash

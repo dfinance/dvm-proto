@@ -39,6 +39,11 @@ jobs:
       with:
         go-version: ${{ matrix.go-version }}
 
+    - name: Install Protoc
+      uses: Arduino/actions/setup-protoc@master
+      with:
+        version: '3.x'
+
     - name: Add GOBIN to PATH
       shell: bash
       run: echo "::add-path::$(go env GOPATH)/bin"

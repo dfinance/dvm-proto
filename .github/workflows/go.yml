@@ -1,0 +1,69 @@
+name: Go
+on:
+  pull_request:
+  push:
+    branches:
+    - master
+
+jobs:
+  rust:
+    name: Go
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version:
+        - 1.14.x
+        # - 1.13.x
+        os:
+        - ubuntu-latest
+        - windows-latest
+        # - macos-latest
+
+    env:
+      PROTO_IN_DIR: ./protos/
+      GO_PROTO_OUT_VM_DIR: ./go/vm_grpc/
+      GO_PROTO_OUT_DS_DIR: ./go/ds_grpc/
+      PROTOBUF_VM_FILES: ./protos/vm.proto
+      PROTOBUF_DS_FILES: ./protos/data-source.proto
+      GO111MODULE: on
+      GOPATH: ${{ github.workspace }}
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Install Go toolchain
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Install Protoc
+      uses: Arduino/actions/setup-protoc@master
+      with:
+        version: '3.x'
+
+    - name: chmod Protoc
+      shell: bash
+      run: "chmod +x `which protoc`"
+
+    - name: Add GOBIN to PATH
+      shell: bash
+      run: echo "::add-path::$(go env GOPATH)/bin"
+
+    - name: Restore dependencies from cache
+      uses: actions/cache@v1
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install dependencies
+      shell: bash
+      run: go get -u github.com/golang/protobuf/protoc-gen-go && go get -u google.golang.org/grpc
+
+    - name: Build
+      shell: bash
+      run: make

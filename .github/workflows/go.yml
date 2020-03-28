@@ -52,9 +52,6 @@ jobs:
           ${{ runner.os }}-go-
 
     - name: Install dependencies
-      uses: actions/setup-go@v1
-      with:
-        go-version: ${{ matrix.go-version }}
       shell: bash
       run: go get -u github.com/golang/protobuf/protoc-gen-go
 

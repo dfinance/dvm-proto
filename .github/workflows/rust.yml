@@ -48,6 +48,7 @@ jobs:
     - if: matrix.os == 'ubuntu-latest'
       run: sudo chown -R $(whoami):$(id -ng) ~/.cargo/
 
-    - name: Build
+    - name: Check
       shell: bash
-      run: cargo build --manifest-path rust/Cargo.toml
+      run: cargo check --manifest-path rust/Cargo.toml
+      # run: cargo build --manifest-path rust/Cargo.toml

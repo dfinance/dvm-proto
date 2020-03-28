@@ -13,17 +13,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        go-version:
+        - 1.14.x
+        # - 1.13.x
         os:
         - ubuntu-latest
         - macos-latest
         - windows-latest
 
     env:
-      RUSTFLAGS: -D warnings
-      RUST_BACKTRACE: full
-      CARGO_INCREMENTAL: 0
-      RUSTUP_MAX_RETRIES: 10
-      CARGO_NET_RETRY: 10
+      PROTO_IN_DIR: ./protos/
+      GO_PROTO_OUT_VM_DIR: ./go/vm_grpc/
+      GO_PROTO_OUT_DS_DIR: ./go/ds_grpc/
+      PROTOBUF_VM_FILES: ./protos/vm.proto
+      PROTOBUF_DS_FILES: ./protos/data-source.proto
+      GO111MODULE: on
+      GOPATH: ${{ github.workspace }}
 
     steps:
     - name: Checkout repository
@@ -32,7 +37,26 @@ jobs:
     - name: Install Go toolchain
       uses: actions/setup-go@v1
       with:
-        go-version: '1.9.3' # The Go version to download (if necessary) and use.
+        go-version: ${{ matrix.go-version }}
+
+    - name: Add GOBIN to PATH
+      shell: bash
+      run: echo "::add-path::$(go env GOPATH)/bin"
+
+    - name: Restore dependencies from cache
+      uses: actions/cache@v1
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Install dependencies
+      uses: actions/setup-go@v1
+      with:
+        go-version: ${{ matrix.go-version }}
+      shell: bash
+      run: go get -u github.com/golang/protobuf/protoc-gen-go
 
     - name: Build
       shell: bash

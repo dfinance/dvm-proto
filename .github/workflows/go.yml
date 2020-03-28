@@ -1,4 +1,4 @@
-name: Go Tests & Checks
+name: Go
 on:
   pull_request:
   push:
@@ -33,8 +33,7 @@ jobs:
       uses: actions/setup-go@v1
       with:
         go-version: '1.9.3' # The Go version to download (if necessary) and use.
-    - run: go run hello.go
 
-    - name: Check
+    - name: Build
       shell: bash
       run: make

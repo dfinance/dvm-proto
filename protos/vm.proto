@@ -121,9 +121,15 @@ message SourceFile {
     bytes address = 2;  // address of the sender, in bech32 form
 }
 
+// Compilation unit.
+message CompilationUnit {
+    string text = 1;  // utf8 encoded source code with libra/bech32 addresses
+    string name = 2; // name of the unit.
+}
+
 // Compiler API
 message SourceFiles {
-    repeated string text = 1;  // utf8 encoded source code with libra/bech32 addresses
+    repeated CompilationUnit units = 1;  // Compilation units.
     bytes address = 2;  // address of the sender, in bech32 form
 }
 

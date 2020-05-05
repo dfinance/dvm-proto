@@ -154,12 +154,22 @@ pub struct SourceFile {
     #[prost(bytes, tag = "2")]
     pub address: std::vec::Vec<u8>,
 }
+/// Compilation unit.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CompilationUnit {
+    /// utf8 encoded source code with libra/bech32 addresses
+    #[prost(string, tag = "1")]
+    pub text: std::string::String,
+    /// name of the unit.
+    #[prost(string, tag = "2")]
+    pub name: std::string::String,
+}
 /// Compiler API
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SourceFiles {
-    /// utf8 encoded source code with libra/bech32 addresses
-    #[prost(string, repeated, tag = "1")]
-    pub text: ::std::vec::Vec<std::string::String>,
+    /// Compilation units.
+    #[prost(message, repeated, tag = "1")]
+    pub units: ::std::vec::Vec<CompilationUnit>,
     /// address of the sender, in bech32 form
     #[prost(bytes, tag = "2")]
     pub address: std::vec::Vec<u8>,

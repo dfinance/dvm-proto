@@ -116,10 +116,26 @@ service VMService {
 
 
 // Compiler API
-message MvIrSourceFile {
+message SourceFile {
     string text = 1;  // utf8 encoded source code with libra/bech32 addresses
     bytes address = 2;  // address of the sender, in bech32 form
-    ContractType type = 3;
+}
+
+// Compiler API
+message SourceFiles {
+    repeated string text = 1;  // utf8 encoded source code with libra/bech32 addresses
+    bytes address = 2;  // address of the sender, in bech32 form
+}
+
+// Compiled source.
+message CompiledUnit {
+    string name = 1; // name of the module/script.
+    bytes bytecode = 2; // bytecode of the compiled module/script
+}
+
+message MultipleCompilationResult {
+    repeated CompiledUnit units = 1;
+    repeated string errors = 2;  // list of error messages, empty if successful
 }
 
 message CompilationResult {
@@ -128,7 +144,11 @@ message CompilationResult {
 }
 
 service VMCompiler {
-    rpc Compile (MvIrSourceFile) returns (CompilationResult) {}
+    rpc Compile (SourceFile) returns (CompilationResult) {}
+}
+
+service VMMultipleSourcesCompiler {
+    rpc Compile (SourceFiles) returns (MultipleCompilationResult) {}
 }
 
 // Script Arguments API

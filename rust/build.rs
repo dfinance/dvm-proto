@@ -5,15 +5,14 @@ use std::path::Path;
 use std::fs::canonicalize;
 
 const OUT_DIR: &str = "src/grpc";
-const PB_PATH: [&str; 2] = [
-    "../protos/vm.proto",
-    "../protos/data-source.proto",
-];
+const PB_PATH: [&str; 2] = ["../protos/vm.proto", "../protos/data-source.proto"];
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=src/build.rs");
 
-    let protos = canonicalize("../protos/").map_err(|err| eprintln!("invalid path: {:?}", err)).unwrap();
+    let protos = canonicalize("../protos/")
+        .map_err(|err| eprintln!("invalid path: {:?}", err))
+        .unwrap();
     eprintln!("canonicalized protos-sources path: {:?}", protos);
 
     for path in PB_PATH.iter() {

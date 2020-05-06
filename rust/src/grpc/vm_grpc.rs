@@ -10,6 +10,12 @@ pub struct VmStatus {
     /// Message with error details if needed (optional).
     #[prost(string, tag = "3")]
     pub message: std::string::String,
+    /// Major status name.
+    #[prost(string, tag = "4")]
+    pub status_name: std::string::String,
+    /// Status description.
+    #[prost(string, tag = "5")]
+    pub description: std::string::String,
 }
 /// Describing VMType for events.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -126,23 +132,6 @@ pub struct VmExecuteResponse {
     /// Main status of execution, might contain an error.
     #[prost(message, optional, tag = "5")]
     pub status_struct: ::std::option::Option<VmStatus>,
-}
-/// Response from VM in case of execution multiplay contracts.
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VmExecuteResponses {
-    /// Result of executions.
-    #[prost(message, repeated, tag = "1")]
-    pub executions: ::std::vec::Vec<VmExecuteResponse>,
-}
-/// Execute request for VM
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VmExecuteRequest {
-    /// contracts to execute.
-    #[prost(message, repeated, tag = "1")]
-    pub contracts: ::std::vec::Vec<VmContract>,
-    /// options to execute.
-    #[prost(uint64, tag = "4")]
-    pub options: u64,
 }
 /// Compiler API
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -293,10 +282,10 @@ pub mod vm_service_client {
             let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
             Self { inner }
         }
-        pub async fn execute_contracts(
+        pub async fn execute_contract(
             &mut self,
-            request: impl tonic::IntoRequest<super::VmExecuteRequest>,
-        ) -> Result<tonic::Response<super::VmExecuteResponses>, tonic::Status> {
+            request: impl tonic::IntoRequest<super::VmContract>,
+        ) -> Result<tonic::Response<super::VmExecuteResponse>, tonic::Status> {
             self.inner.ready().await.map_err(|e| {
                 tonic::Status::new(
                     tonic::Code::Unknown,
@@ -304,7 +293,7 @@ pub mod vm_service_client {
                 )
             })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/vm_grpc.VMService/ExecuteContracts");
+            let path = http::uri::PathAndQuery::from_static("/vm_grpc.VMService/ExecuteContract");
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
@@ -493,10 +482,10 @@ pub mod vm_service_server {
     #[doc = "Generated trait containing gRPC methods that should be implemented for use with VmServiceServer."]
     #[async_trait]
     pub trait VmService: Send + Sync + 'static {
-        async fn execute_contracts(
+        async fn execute_contract(
             &self,
-            request: tonic::Request<super::VmExecuteRequest>,
-        ) -> Result<tonic::Response<super::VmExecuteResponses>, tonic::Status>;
+            request: tonic::Request<super::VmContract>,
+        ) -> Result<tonic::Response<super::VmExecuteResponse>, tonic::Status>;
     }
     #[doc = " GRPC service"]
     #[derive(Debug)]
@@ -527,17 +516,17 @@ pub mod vm_service_server {
         fn call(&mut self, req: http::Request<HyperBody>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/vm_grpc.VMService/ExecuteContracts" => {
-                    struct ExecuteContractsSvc<T: VmService>(pub Arc<T>);
-                    impl<T: VmService> tonic::server::UnaryService<super::VmExecuteRequest> for ExecuteContractsSvc<T> {
-                        type Response = super::VmExecuteResponses;
+                "/vm_grpc.VMService/ExecuteContract" => {
+                    struct ExecuteContractSvc<T: VmService>(pub Arc<T>);
+                    impl<T: VmService> tonic::server::UnaryService<super::VmContract> for ExecuteContractSvc<T> {
+                        type Response = super::VmExecuteResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::VmExecuteRequest>,
+                            request: tonic::Request<super::VmContract>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.execute_contracts(request).await };
+                            let fut = async move { inner.execute_contract(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -545,7 +534,7 @@ pub mod vm_service_server {
                     let fut = async move {
                         let interceptor = inner.1.clone();
                         let inner = inner.0;
-                        let method = ExecuteContractsSvc(inner);
+                        let method = ExecuteContractSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = if let Some(interceptor) = interceptor {
                             tonic::server::Grpc::with_interceptor(codec, interceptor)

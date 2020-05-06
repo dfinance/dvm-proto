@@ -19,6 +19,8 @@ message VMStatus {
     uint64 major_status = 1; // Major status.
     uint64 sub_status = 2; // Sub status if needed (optional).
     string message = 3; // Message with error details if needed (optional).
+    string status_name = 4; // Major status name.
+    string description = 5; // Status description.
 }
 
 // Type of value returned by event during contract execution.
@@ -98,20 +100,9 @@ message VMExecuteResponse {
     VMStatus statusStruct = 5; // Main status of execution, might contain an error.
 }
 
-// Response from VM in case of execution multiplay contracts.
-message VMExecuteResponses {
-    repeated VMExecuteResponse executions = 1; // Result of executions.
-}
-
-// Execute request for VM
-message VMExecuteRequest {
-    repeated VMContract contracts = 1; // contracts to execute.
-    uint64 options = 4; // options to execute.
-}
-
 // GRPC service
 service VMService {
-    rpc ExecuteContracts (VMExecuteRequest) returns (VMExecuteResponses) {}
+    rpc ExecuteContract (VMContract) returns (VMExecuteResponse) {}
 }
 
 

@@ -108,6 +108,11 @@ pub mod ds_service_client {
             }
         }
     }
+    impl<T> std::fmt::Debug for DsServiceClient<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "DsServiceClient {{ ... }}")
+        }
+    }
 }
 #[doc = r" Generated server implementations."]
 pub mod ds_service_server {
@@ -144,17 +149,23 @@ pub mod ds_service_server {
             Self { inner }
         }
     }
-    impl<T: DsService> Service<http::Request<HyperBody>> for DsServiceServer<T> {
+    impl<T, B> Service<http::Request<B>> for DsServiceServer<T>
+    where
+        T: DsService,
+        B: HttpBody + Send + Sync + 'static,
+        B::Error: Into<StdError> + Send + 'static,
+    {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = Never;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
-        fn call(&mut self, req: http::Request<HyperBody>) -> Self::Future {
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
                 "/ds_grpc.DSService/GetRaw" => {
+                    #[allow(non_camel_case_types)]
                     struct GetRawSvc<T: DsService>(pub Arc<T>);
                     impl<T: DsService> tonic::server::UnaryService<super::DsAccessPath> for GetRawSvc<T> {
                         type Response = super::DsRawResponse;
@@ -185,6 +196,7 @@ pub mod ds_service_server {
                     Box::pin(fut)
                 }
                 "/ds_grpc.DSService/MultiGetRaw" => {
+                    #[allow(non_camel_case_types)]
                     struct MultiGetRawSvc<T: DsService>(pub Arc<T>);
                     impl<T: DsService> tonic::server::UnaryService<super::DsAccessPaths> for MultiGetRawSvc<T> {
                         type Response = super::DsRawResponses;

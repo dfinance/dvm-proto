@@ -315,6 +315,11 @@ pub mod vm_service_client {
             }
         }
     }
+    impl<T> std::fmt::Debug for VmServiceClient<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "VmServiceClient {{ ... }}")
+        }
+    }
 }
 #[doc = r" Generated client implementations."]
 pub mod vm_compiler_client {
@@ -369,6 +374,11 @@ pub mod vm_compiler_client {
             Self {
                 inner: self.inner.clone(),
             }
+        }
+    }
+    impl<T> std::fmt::Debug for VmCompilerClient<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "VmCompilerClient {{ ... }}")
         }
     }
 }
@@ -428,6 +438,11 @@ pub mod vm_multiple_sources_compiler_client {
             }
         }
     }
+    impl<T> std::fmt::Debug for VmMultipleSourcesCompilerClient<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "VmMultipleSourcesCompilerClient {{ ... }}")
+        }
+    }
 }
 #[doc = r" Generated client implementations."]
 pub mod vm_script_metadata_client {
@@ -485,6 +500,11 @@ pub mod vm_script_metadata_client {
             }
         }
     }
+    impl<T> std::fmt::Debug for VmScriptMetadataClient<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "VmScriptMetadataClient {{ ... }}")
+        }
+    }
 }
 #[doc = r" Generated server implementations."]
 pub mod vm_service_server {
@@ -517,17 +537,23 @@ pub mod vm_service_server {
             Self { inner }
         }
     }
-    impl<T: VmService> Service<http::Request<HyperBody>> for VmServiceServer<T> {
+    impl<T, B> Service<http::Request<B>> for VmServiceServer<T>
+    where
+        T: VmService,
+        B: HttpBody + Send + Sync + 'static,
+        B::Error: Into<StdError> + Send + 'static,
+    {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = Never;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
-        fn call(&mut self, req: http::Request<HyperBody>) -> Self::Future {
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
                 "/vm_grpc.VMService/ExecuteContracts" => {
+                    #[allow(non_camel_case_types)]
                     struct ExecuteContractsSvc<T: VmService>(pub Arc<T>);
                     impl<T: VmService> tonic::server::UnaryService<super::VmExecuteRequest> for ExecuteContractsSvc<T> {
                         type Response = super::VmExecuteResponses;
@@ -617,17 +643,23 @@ pub mod vm_compiler_server {
             Self { inner }
         }
     }
-    impl<T: VmCompiler> Service<http::Request<HyperBody>> for VmCompilerServer<T> {
+    impl<T, B> Service<http::Request<B>> for VmCompilerServer<T>
+    where
+        T: VmCompiler,
+        B: HttpBody + Send + Sync + 'static,
+        B::Error: Into<StdError> + Send + 'static,
+    {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = Never;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
-        fn call(&mut self, req: http::Request<HyperBody>) -> Self::Future {
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
                 "/vm_grpc.VMCompiler/Compile" => {
+                    #[allow(non_camel_case_types)]
                     struct CompileSvc<T: VmCompiler>(pub Arc<T>);
                     impl<T: VmCompiler> tonic::server::UnaryService<super::SourceFile> for CompileSvc<T> {
                         type Response = super::CompilationResult;
@@ -717,8 +749,11 @@ pub mod vm_multiple_sources_compiler_server {
             Self { inner }
         }
     }
-    impl<T: VmMultipleSourcesCompiler> Service<http::Request<HyperBody>>
-        for VmMultipleSourcesCompilerServer<T>
+    impl<T, B> Service<http::Request<B>> for VmMultipleSourcesCompilerServer<T>
+    where
+        T: VmMultipleSourcesCompiler,
+        B: HttpBody + Send + Sync + 'static,
+        B::Error: Into<StdError> + Send + 'static,
     {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = Never;
@@ -726,10 +761,11 @@ pub mod vm_multiple_sources_compiler_server {
         fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
-        fn call(&mut self, req: http::Request<HyperBody>) -> Self::Future {
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
                 "/vm_grpc.VMMultipleSourcesCompiler/Compile" => {
+                    #[allow(non_camel_case_types)]
                     struct CompileSvc<T: VmMultipleSourcesCompiler>(pub Arc<T>);
                     impl<T: VmMultipleSourcesCompiler>
                         tonic::server::UnaryService<super::SourceFiles> for CompileSvc<T>
@@ -823,17 +859,23 @@ pub mod vm_script_metadata_server {
             Self { inner }
         }
     }
-    impl<T: VmScriptMetadata> Service<http::Request<HyperBody>> for VmScriptMetadataServer<T> {
+    impl<T, B> Service<http::Request<B>> for VmScriptMetadataServer<T>
+    where
+        T: VmScriptMetadata,
+        B: HttpBody + Send + Sync + 'static,
+        B::Error: Into<StdError> + Send + 'static,
+    {
         type Response = http::Response<tonic::body::BoxBody>;
         type Error = Never;
         type Future = BoxFuture<Self::Response, Self::Error>;
         fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             Poll::Ready(Ok(()))
         }
-        fn call(&mut self, req: http::Request<HyperBody>) -> Self::Future {
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
                 "/vm_grpc.VMScriptMetadata/GetSignature" => {
+                    #[allow(non_camel_case_types)]
                     struct GetSignatureSvc<T: VmScriptMetadata>(pub Arc<T>);
                     impl<T: VmScriptMetadata> tonic::server::UnaryService<super::VmScript> for GetSignatureSvc<T> {
                         type Response = super::Signature;

@@ -2,12 +2,6 @@ syntax = "proto3";
 
 package vm_grpc;
 
-// Type of contract (module or script).
-enum ContractType {
-    Module = 0; // If VM works with module.
-    Script = 1; // If VM works with script.
-}
-
 // Status of contract execution.
 enum ContractStatus {
     Discard = 0; // If transaction should be ignored, because of error.
@@ -21,36 +15,52 @@ message VMStatus {
     string message = 3; // Message with error details if needed (optional).
 }
 
-// Type of value returned by event during contract execution.
+// Type of contract argument.
 enum VMTypeTag {
-    Bool = 0;  // Bool
-    U64  = 1;  // Uint64
-    ByteArray = 2; // Bytes
-    Address   = 3; // Address, in bech32 form
-    Struct    = 4; // Structure (could be several arguments for event call).
-    U8 = 5; // U8
-    U128 = 6; // U128
+    Bool = 0; // Bool 0x0 - false, 0x1 - true.
+    U64 = 1; // Uint64. Little-endian unsigned 64 bits integer.
+    Vector = 2; // Vector of bytes.
+    Address = 3; // Address, in bech32 form. 20 bytes.
+    U8 = 4; // U8
+    U128 = 5; // U128 Little-endian unsigned 128 bits integer.
 }
 
-// Describing VMType for events.
-message VMType {
-    VMTypeTag tag = 1; // Type.
-    VMStructTag struct_tag = 2; // If type is Struct put struct into variable, otherwise not, optional value.
+/// Full name of the structure.
+message StructIdent {
+    bytes address = 1; // address of module owner
+    string module = 2; // module name.
+    string name = 3; // name of structure.
+    repeated LcsTag type_params = 4; // Structure type parameters.
 }
 
-// Structure tag (for vm events contains structures).
-message VMStructTag {
-    bytes  address = 1; // address of module owner
-    string module = 2; // module where event happens.
-    string name = 3; // name of event (not sure yet, need to test).
-    repeated VMType type_params = 4; // event parameters (recursive).
+enum LcsType {
+    LcsBool = 0; // Bool
+    LcsU64 = 1; // Uint64
+    LcsVector = 2; // Vector of bytes.
+    LcsAddress = 3; // Address, in bech32 form
+    LcsU8 = 4; // U8
+    LcsU128 = 5; // U128
+    LcsSigner = 6; // Signer.
+    LcsStruct = 7; // Struct.
+}
+
+message LcsTag {
+    LcsType type_tag = 1; // type tag.
+    LcsTag vector_type = 2; // vector type. Has a non-null value if the type_tag is equal to a LcsVector.
+    StructIdent struct_ident = 3; // struct identifier. Has a non-null value if the type_tag is equal to a LcsStruct.
+}
+
+/// Module identifier.
+message ModuleIdent {
+    bytes address = 1; // module address.
+    string name = 2; // module name.
 }
 
 // VM event returns after contract execution.
 message VMEvent {
-    bytes key = 1; // key to store vm event.
-    uint64 sequence_number = 2; // sequence number of event during execution.
-    VMType type = 3; // Type of value inside event.
+    bytes sender_address = 1; // Event sender address.
+    ModuleIdent sender_module = 2; // sender module.
+    LcsTag event_type = 3; // Type of value inside event.
     bytes event_data = 4; // Event data in bytes to parse.
 }
 
@@ -76,17 +86,25 @@ message VMValue {
 // Contract arguments.
 message VMArgs {
     VMTypeTag type = 1; // Argument type.
-    string value = 2; // Argument value.
+    bytes value = 2; // Argument value.
 }
 
-// VM contract object to process.
-message VMContract {
-    string address = 1; // owner of contract (module) or script executor, bech32 form.
+// Publish module.
+message VMPublishModule {
+    bytes address = 1; // owner of contract (module) or script executor.
     uint64 max_gas_amount = 2; // maximal total gas specified by wallet to spend for this transaction.
     uint64 gas_unit_price = 3; // maximal price can be paid per gas.
     bytes code = 4; // compiled contract code.
-    ContractType contract_type = 6; // Type of contract
-    repeated VMArgs args = 7; // Contract arguments.
+}
+
+// VM contract object to process.
+message VMExecuteScript {
+    bytes address = 1; // owner of contract (module) or script executor.
+    uint64 max_gas_amount = 2; // maximal total gas specified by wallet to spend for this transaction.
+    uint64 gas_unit_price = 3; // maximal price can be paid per gas.
+    bytes code = 4; // compiled contract code.
+    repeated StructIdent type_params = 7; // type parameters.
+    repeated VMArgs args = 8; // Contract arguments.
 }
 
 // Response from VM contains write_set, events, gas used and status for specific contract.
@@ -98,39 +116,33 @@ message VMExecuteResponse {
     VMStatus statusStruct = 5; // Main status of execution, might contain an error.
 }
 
-// Response from VM in case of execution multiplay contracts.
-message VMExecuteResponses {
-    repeated VMExecuteResponse executions = 1; // Result of executions.
-}
-
-// Execute request for VM
-message VMExecuteRequest {
-    repeated VMContract contracts = 1; // contracts to execute.
-    uint64 options = 4; // options to execute.
-}
-
 // GRPC service
-service VMService {
-    rpc ExecuteContracts (VMExecuteRequest) returns (VMExecuteResponses) {}
+service VMModulePublisher {
+    rpc PublishModule (VMPublishModule) returns (VMExecuteResponse) {
+    }
 }
 
+service VMScriptExecutor {
+    rpc ExecuteScript (VMExecuteScript) returns (VMExecuteResponse) {
+    }
+}
 
 // Compiler API
 message SourceFile {
-    string text = 1;  // utf8 encoded source code with libra/bech32 addresses
-    bytes address = 2;  // address of the sender, in bech32 form
+    string text = 1; // utf8 encoded source code with libra/bech32 addresses
+    bytes address = 2; // address of the sender, in bech32 form
 }
 
 // Compilation unit.
 message CompilationUnit {
-    string text = 1;  // utf8 encoded source code with libra/bech32 addresses
+    string text = 1; // utf8 encoded source code with libra/bech32 addresses
     string name = 2; // name of the unit.
 }
 
 // Compiler API
 message SourceFiles {
-    repeated CompilationUnit units = 1;  // Compilation units.
-    bytes address = 2;  // address of the sender, in bech32 form
+    repeated CompilationUnit units = 1; // Compilation units.
+    bytes address = 2; // address of the sender, in bech32 form
 }
 
 // Compiled source.
@@ -141,25 +153,27 @@ message CompiledUnit {
 
 message MultipleCompilationResult {
     repeated CompiledUnit units = 1;
-    repeated string errors = 2;  // list of error messages, empty if successful
+    repeated string errors = 2; // list of error messages, empty if successful
 }
 
 message CompilationResult {
-    bytes bytecode = 1;  // bytecode of the compiled module/script
-    repeated string errors = 2;  // list of error messages, empty if successful
+    bytes bytecode = 1; // bytecode of the compiled module/script
+    repeated string errors = 2; // list of error messages, empty if successful
 }
 
 service VMCompiler {
-    rpc Compile (SourceFile) returns (CompilationResult) {}
+    rpc Compile (SourceFile) returns (CompilationResult) {
+    }
 }
 
 service VMMultipleSourcesCompiler {
-    rpc Compile (SourceFiles) returns (MultipleCompilationResult) {}
+    rpc Compile (SourceFiles) returns (MultipleCompilationResult) {
+    }
 }
 
 // Script Arguments API
 message VMScript {
-    bytes code = 1;  // bytecode of script
+    bytes code = 1; // bytecode of script
 }
 
 message Signature {
@@ -167,5 +181,6 @@ message Signature {
 }
 
 service VMScriptMetadata {
-    rpc GetSignature (VMScript) returns (Signature) {} // return argument names/types for script
+    rpc GetSignature (VMScript) returns (Signature) {
+    } // return argument names/types for script
 }

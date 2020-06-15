@@ -11,44 +11,56 @@ pub struct VmStatus {
     #[prost(string, tag = "3")]
     pub message: std::string::String,
 }
-/// Describing VMType for events.
+//// Full name of the structure.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VmType {
-    /// Type.
-    #[prost(enumeration = "VmTypeTag", tag = "1")]
-    pub tag: i32,
-    /// If type is Struct put struct into variable, otherwise not, optional value.
-    #[prost(message, optional, tag = "2")]
-    pub struct_tag: ::std::option::Option<VmStructTag>,
-}
-/// Structure tag (for vm events contains structures).
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VmStructTag {
+pub struct StructIdent {
     /// address of module owner
     #[prost(bytes, tag = "1")]
     pub address: std::vec::Vec<u8>,
-    /// module where event happens.
+    /// module name.
     #[prost(string, tag = "2")]
     pub module: std::string::String,
-    /// name of event (not sure yet, need to test).
+    /// name of structure.
     #[prost(string, tag = "3")]
     pub name: std::string::String,
-    /// event parameters (recursive).
+    /// Structure type parameters.
     #[prost(message, repeated, tag = "4")]
-    pub type_params: ::std::vec::Vec<VmType>,
+    pub type_params: ::std::vec::Vec<LcsTag>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct LcsTag {
+    /// type tag.
+    #[prost(enumeration = "LcsType", tag = "1")]
+    pub type_tag: i32,
+    /// vector type. Has a non-null value if the type_tag is equal to a LcsVector.
+    #[prost(message, optional, boxed, tag = "2")]
+    pub vector_type: ::std::option::Option<::std::boxed::Box<LcsTag>>,
+    /// struct identifier. Has a non-null value if the type_tag is equal to a LcsStruct.
+    #[prost(message, optional, tag = "3")]
+    pub struct_ident: ::std::option::Option<StructIdent>,
+}
+//// Module identifier.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ModuleIdent {
+    /// module address.
+    #[prost(bytes, tag = "1")]
+    pub address: std::vec::Vec<u8>,
+    /// module name.
+    #[prost(string, tag = "2")]
+    pub name: std::string::String,
 }
 /// VM event returns after contract execution.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VmEvent {
-    /// key to store vm event.
+    /// Event sender address.
     #[prost(bytes, tag = "1")]
-    pub key: std::vec::Vec<u8>,
-    /// sequence number of event during execution.
-    #[prost(uint64, tag = "2")]
-    pub sequence_number: u64,
+    pub sender_address: std::vec::Vec<u8>,
+    /// sender module.
+    #[prost(message, optional, tag = "2")]
+    pub sender_module: ::std::option::Option<ModuleIdent>,
     /// Type of value inside event.
     #[prost(message, optional, tag = "3")]
-    pub r#type: ::std::option::Option<VmType>,
+    pub event_type: ::std::option::Option<LcsTag>,
     /// Event data in bytes to parse.
     #[prost(bytes, tag = "4")]
     pub event_data: std::vec::Vec<u8>,
@@ -83,15 +95,15 @@ pub struct VmArgs {
     #[prost(enumeration = "VmTypeTag", tag = "1")]
     pub r#type: i32,
     /// Argument value.
-    #[prost(string, tag = "2")]
-    pub value: std::string::String,
+    #[prost(bytes, tag = "2")]
+    pub value: std::vec::Vec<u8>,
 }
-/// VM contract object to process.
+/// Publish module.
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VmContract {
-    /// owner of contract (module) or script executor, bech32 form.
-    #[prost(string, tag = "1")]
-    pub address: std::string::String,
+pub struct VmPublishModule {
+    /// owner of contract (module) or script executor.
+    #[prost(bytes, tag = "1")]
+    pub address: std::vec::Vec<u8>,
     /// maximal total gas specified by wallet to spend for this transaction.
     #[prost(uint64, tag = "2")]
     pub max_gas_amount: u64,
@@ -101,11 +113,27 @@ pub struct VmContract {
     /// compiled contract code.
     #[prost(bytes, tag = "4")]
     pub code: std::vec::Vec<u8>,
-    /// Type of contract
-    #[prost(enumeration = "ContractType", tag = "6")]
-    pub contract_type: i32,
-    /// Contract arguments.
+}
+/// VM contract object to process.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VmExecuteScript {
+    /// owner of contract (module) or script executor.
+    #[prost(bytes, tag = "1")]
+    pub address: std::vec::Vec<u8>,
+    /// maximal total gas specified by wallet to spend for this transaction.
+    #[prost(uint64, tag = "2")]
+    pub max_gas_amount: u64,
+    /// maximal price can be paid per gas.
+    #[prost(uint64, tag = "3")]
+    pub gas_unit_price: u64,
+    /// compiled contract code.
+    #[prost(bytes, tag = "4")]
+    pub code: std::vec::Vec<u8>,
+    /// type parameters.
     #[prost(message, repeated, tag = "7")]
+    pub type_params: ::std::vec::Vec<StructIdent>,
+    /// Contract arguments.
+    #[prost(message, repeated, tag = "8")]
     pub args: ::std::vec::Vec<VmArgs>,
 }
 /// Response from VM contains write_set, events, gas used and status for specific contract.
@@ -126,23 +154,6 @@ pub struct VmExecuteResponse {
     /// Main status of execution, might contain an error.
     #[prost(message, optional, tag = "5")]
     pub status_struct: ::std::option::Option<VmStatus>,
-}
-/// Response from VM in case of execution multiplay contracts.
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VmExecuteResponses {
-    /// Result of executions.
-    #[prost(message, repeated, tag = "1")]
-    pub executions: ::std::vec::Vec<VmExecuteResponse>,
-}
-/// Execute request for VM
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VmExecuteRequest {
-    /// contracts to execute.
-    #[prost(message, repeated, tag = "1")]
-    pub contracts: ::std::vec::Vec<VmContract>,
-    /// options to execute.
-    #[prost(uint64, tag = "4")]
-    pub options: u64,
 }
 /// Compiler API
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -213,15 +224,6 @@ pub struct Signature {
     #[prost(enumeration = "VmTypeTag", repeated, tag = "1")]
     pub arguments: ::std::vec::Vec<i32>,
 }
-/// Type of contract (module or script).
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-#[repr(i32)]
-pub enum ContractType {
-    /// If VM works with module.
-    Module = 0,
-    /// If VM works with script.
-    Script = 1,
-}
 /// Status of contract execution.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -231,24 +233,42 @@ pub enum ContractStatus {
     /// If we keep transaction and write write_set.
     Keep = 1,
 }
-/// Type of value returned by event during contract execution.
+/// Type of contract argument.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum VmTypeTag {
-    /// Bool
+    /// Bool 0x0 - false, 0x1 - true.
     Bool = 0,
-    /// Uint64
+    /// Uint64. Little-endian unsigned 64 bits integer.
     U64 = 1,
-    /// Bytes
-    ByteArray = 2,
-    /// Address, in bech32 form
+    /// Vector of bytes.
+    Vector = 2,
+    /// Address, in bech32 form. 20 bytes.
     Address = 3,
-    /// Structure (could be several arguments for event call).
-    Struct = 4,
     /// U8
-    U8 = 5,
+    U8 = 4,
+    /// U128 Little-endian unsigned 128 bits integer.
+    U128 = 5,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum LcsType {
+    /// Bool
+    LcsBool = 0,
+    /// Uint64
+    LcsU64 = 1,
+    /// Vector of bytes.
+    LcsVector = 2,
+    /// Address, in bech32 form
+    LcsAddress = 3,
+    /// U8
+    LcsU8 = 4,
     /// U128
-    U128 = 6,
+    LcsU128 = 5,
+    /// Signer.
+    LcsSigner = 6,
+    /// Struct.
+    LcsStruct = 7,
 }
 /// Write set operation type.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -260,14 +280,14 @@ pub enum VmWriteOp {
     Deletion = 1,
 }
 #[doc = r" Generated client implementations."]
-pub mod vm_service_client {
+pub mod vm_module_publisher_client {
     #![allow(unused_variables, dead_code, missing_docs)]
     use tonic::codegen::*;
     #[doc = " GRPC service"]
-    pub struct VmServiceClient<T> {
+    pub struct VmModulePublisherClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl VmServiceClient<tonic::transport::Channel> {
+    impl VmModulePublisherClient<tonic::transport::Channel> {
         #[doc = r" Attempt to create a new client by connecting to a given endpoint."]
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -278,7 +298,7 @@ pub mod vm_service_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> VmServiceClient<T>
+    impl<T> VmModulePublisherClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::ResponseBody: Body + HttpBody + Send + 'static,
@@ -293,10 +313,10 @@ pub mod vm_service_client {
             let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
             Self { inner }
         }
-        pub async fn execute_contracts(
+        pub async fn publish_module(
             &mut self,
-            request: impl tonic::IntoRequest<super::VmExecuteRequest>,
-        ) -> Result<tonic::Response<super::VmExecuteResponses>, tonic::Status> {
+            request: impl tonic::IntoRequest<super::VmPublishModule>,
+        ) -> Result<tonic::Response<super::VmExecuteResponse>, tonic::Status> {
             self.inner.ready().await.map_err(|e| {
                 tonic::Status::new(
                     tonic::Code::Unknown,
@@ -304,20 +324,83 @@ pub mod vm_service_client {
                 )
             })?;
             let codec = tonic::codec::ProstCodec::default();
-            let path = http::uri::PathAndQuery::from_static("/vm_grpc.VMService/ExecuteContracts");
+            let path =
+                http::uri::PathAndQuery::from_static("/vm_grpc.VMModulePublisher/PublishModule");
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
-    impl<T: Clone> Clone for VmServiceClient<T> {
+    impl<T: Clone> Clone for VmModulePublisherClient<T> {
         fn clone(&self) -> Self {
             Self {
                 inner: self.inner.clone(),
             }
         }
     }
-    impl<T> std::fmt::Debug for VmServiceClient<T> {
+    impl<T> std::fmt::Debug for VmModulePublisherClient<T> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "VmServiceClient {{ ... }}")
+            write!(f, "VmModulePublisherClient {{ ... }}")
+        }
+    }
+}
+#[doc = r" Generated client implementations."]
+pub mod vm_script_executor_client {
+    #![allow(unused_variables, dead_code, missing_docs)]
+    use tonic::codegen::*;
+    pub struct VmScriptExecutorClient<T> {
+        inner: tonic::client::Grpc<T>,
+    }
+    impl VmScriptExecutorClient<tonic::transport::Channel> {
+        #[doc = r" Attempt to create a new client by connecting to a given endpoint."]
+        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
+        where
+            D: std::convert::TryInto<tonic::transport::Endpoint>,
+            D::Error: Into<StdError>,
+        {
+            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
+            Ok(Self::new(conn))
+        }
+    }
+    impl<T> VmScriptExecutorClient<T>
+    where
+        T: tonic::client::GrpcService<tonic::body::BoxBody>,
+        T::ResponseBody: Body + HttpBody + Send + 'static,
+        T::Error: Into<StdError>,
+        <T::ResponseBody as HttpBody>::Error: Into<StdError> + Send,
+    {
+        pub fn new(inner: T) -> Self {
+            let inner = tonic::client::Grpc::new(inner);
+            Self { inner }
+        }
+        pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
+            let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
+            Self { inner }
+        }
+        pub async fn execute_script(
+            &mut self,
+            request: impl tonic::IntoRequest<super::VmExecuteScript>,
+        ) -> Result<tonic::Response<super::VmExecuteResponse>, tonic::Status> {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path =
+                http::uri::PathAndQuery::from_static("/vm_grpc.VMScriptExecutor/ExecuteScript");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+    }
+    impl<T: Clone> Clone for VmScriptExecutorClient<T> {
+        fn clone(&self) -> Self {
+            Self {
+                inner: self.inner.clone(),
+            }
+        }
+    }
+    impl<T> std::fmt::Debug for VmScriptExecutorClient<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "VmScriptExecutorClient {{ ... }}")
         }
     }
 }
@@ -507,25 +590,25 @@ pub mod vm_script_metadata_client {
     }
 }
 #[doc = r" Generated server implementations."]
-pub mod vm_service_server {
+pub mod vm_module_publisher_server {
     #![allow(unused_variables, dead_code, missing_docs)]
     use tonic::codegen::*;
-    #[doc = "Generated trait containing gRPC methods that should be implemented for use with VmServiceServer."]
+    #[doc = "Generated trait containing gRPC methods that should be implemented for use with VmModulePublisherServer."]
     #[async_trait]
-    pub trait VmService: Send + Sync + 'static {
-        async fn execute_contracts(
+    pub trait VmModulePublisher: Send + Sync + 'static {
+        async fn publish_module(
             &self,
-            request: tonic::Request<super::VmExecuteRequest>,
-        ) -> Result<tonic::Response<super::VmExecuteResponses>, tonic::Status>;
+            request: tonic::Request<super::VmPublishModule>,
+        ) -> Result<tonic::Response<super::VmExecuteResponse>, tonic::Status>;
     }
     #[doc = " GRPC service"]
     #[derive(Debug)]
     #[doc(hidden)]
-    pub struct VmServiceServer<T: VmService> {
+    pub struct VmModulePublisherServer<T: VmModulePublisher> {
         inner: _Inner<T>,
     }
     struct _Inner<T>(Arc<T>, Option<tonic::Interceptor>);
-    impl<T: VmService> VmServiceServer<T> {
+    impl<T: VmModulePublisher> VmModulePublisherServer<T> {
         pub fn new(inner: T) -> Self {
             let inner = Arc::new(inner);
             let inner = _Inner(inner, None);
@@ -537,9 +620,9 @@ pub mod vm_service_server {
             Self { inner }
         }
     }
-    impl<T, B> Service<http::Request<B>> for VmServiceServer<T>
+    impl<T, B> Service<http::Request<B>> for VmModulePublisherServer<T>
     where
-        T: VmService,
+        T: VmModulePublisher,
         B: HttpBody + Send + Sync + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -552,18 +635,20 @@ pub mod vm_service_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/vm_grpc.VMService/ExecuteContracts" => {
+                "/vm_grpc.VMModulePublisher/PublishModule" => {
                     #[allow(non_camel_case_types)]
-                    struct ExecuteContractsSvc<T: VmService>(pub Arc<T>);
-                    impl<T: VmService> tonic::server::UnaryService<super::VmExecuteRequest> for ExecuteContractsSvc<T> {
-                        type Response = super::VmExecuteResponses;
+                    struct PublishModuleSvc<T: VmModulePublisher>(pub Arc<T>);
+                    impl<T: VmModulePublisher> tonic::server::UnaryService<super::VmPublishModule>
+                        for PublishModuleSvc<T>
+                    {
+                        type Response = super::VmExecuteResponse;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
                             &mut self,
-                            request: tonic::Request<super::VmExecuteRequest>,
+                            request: tonic::Request<super::VmPublishModule>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.execute_contracts(request).await };
+                            let fut = async move { inner.publish_module(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -571,7 +656,7 @@ pub mod vm_service_server {
                     let fut = async move {
                         let interceptor = inner.1.clone();
                         let inner = inner.0;
-                        let method = ExecuteContractsSvc(inner);
+                        let method = PublishModuleSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = if let Some(interceptor) = interceptor {
                             tonic::server::Grpc::with_interceptor(codec, interceptor)
@@ -593,13 +678,13 @@ pub mod vm_service_server {
             }
         }
     }
-    impl<T: VmService> Clone for VmServiceServer<T> {
+    impl<T: VmModulePublisher> Clone for VmModulePublisherServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self { inner }
         }
     }
-    impl<T: VmService> Clone for _Inner<T> {
+    impl<T: VmModulePublisher> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(self.0.clone(), self.1.clone())
         }
@@ -609,8 +694,116 @@ pub mod vm_service_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: VmService> tonic::transport::NamedService for VmServiceServer<T> {
-        const NAME: &'static str = "vm_grpc.VMService";
+    impl<T: VmModulePublisher> tonic::transport::NamedService for VmModulePublisherServer<T> {
+        const NAME: &'static str = "vm_grpc.VMModulePublisher";
+    }
+}
+#[doc = r" Generated server implementations."]
+pub mod vm_script_executor_server {
+    #![allow(unused_variables, dead_code, missing_docs)]
+    use tonic::codegen::*;
+    #[doc = "Generated trait containing gRPC methods that should be implemented for use with VmScriptExecutorServer."]
+    #[async_trait]
+    pub trait VmScriptExecutor: Send + Sync + 'static {
+        async fn execute_script(
+            &self,
+            request: tonic::Request<super::VmExecuteScript>,
+        ) -> Result<tonic::Response<super::VmExecuteResponse>, tonic::Status>;
+    }
+    #[derive(Debug)]
+    #[doc(hidden)]
+    pub struct VmScriptExecutorServer<T: VmScriptExecutor> {
+        inner: _Inner<T>,
+    }
+    struct _Inner<T>(Arc<T>, Option<tonic::Interceptor>);
+    impl<T: VmScriptExecutor> VmScriptExecutorServer<T> {
+        pub fn new(inner: T) -> Self {
+            let inner = Arc::new(inner);
+            let inner = _Inner(inner, None);
+            Self { inner }
+        }
+        pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
+            let inner = Arc::new(inner);
+            let inner = _Inner(inner, Some(interceptor.into()));
+            Self { inner }
+        }
+    }
+    impl<T, B> Service<http::Request<B>> for VmScriptExecutorServer<T>
+    where
+        T: VmScriptExecutor,
+        B: HttpBody + Send + Sync + 'static,
+        B::Error: Into<StdError> + Send + 'static,
+    {
+        type Response = http::Response<tonic::body::BoxBody>;
+        type Error = Never;
+        type Future = BoxFuture<Self::Response, Self::Error>;
+        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
+            Poll::Ready(Ok(()))
+        }
+        fn call(&mut self, req: http::Request<B>) -> Self::Future {
+            let inner = self.inner.clone();
+            match req.uri().path() {
+                "/vm_grpc.VMScriptExecutor/ExecuteScript" => {
+                    #[allow(non_camel_case_types)]
+                    struct ExecuteScriptSvc<T: VmScriptExecutor>(pub Arc<T>);
+                    impl<T: VmScriptExecutor> tonic::server::UnaryService<super::VmExecuteScript>
+                        for ExecuteScriptSvc<T>
+                    {
+                        type Response = super::VmExecuteResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::VmExecuteScript>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { inner.execute_script(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let interceptor = inner.1.clone();
+                        let inner = inner.0;
+                        let method = ExecuteScriptSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = if let Some(interceptor) = interceptor {
+                            tonic::server::Grpc::with_interceptor(codec, interceptor)
+                        } else {
+                            tonic::server::Grpc::new(codec)
+                        };
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                _ => Box::pin(async move {
+                    Ok(http::Response::builder()
+                        .status(200)
+                        .header("grpc-status", "12")
+                        .body(tonic::body::BoxBody::empty())
+                        .unwrap())
+                }),
+            }
+        }
+    }
+    impl<T: VmScriptExecutor> Clone for VmScriptExecutorServer<T> {
+        fn clone(&self) -> Self {
+            let inner = self.inner.clone();
+            Self { inner }
+        }
+    }
+    impl<T: VmScriptExecutor> Clone for _Inner<T> {
+        fn clone(&self) -> Self {
+            Self(self.0.clone(), self.1.clone())
+        }
+    }
+    impl<T: std::fmt::Debug> std::fmt::Debug for _Inner<T> {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{:?}", self.0)
+        }
+    }
+    impl<T: VmScriptExecutor> tonic::transport::NamedService for VmScriptExecutorServer<T> {
+        const NAME: &'static str = "vm_grpc.VMScriptExecutor";
     }
 }
 #[doc = r" Generated server implementations."]

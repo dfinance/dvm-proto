@@ -180,7 +180,19 @@ message Signature {
     repeated VMTypeTag arguments = 1;
 }
 
+// Returns argument names/types for script.
 service VMScriptMetadata {
     rpc GetSignature (VMScript) returns (Signature) {
-    } // return argument names/types for script
+    }
+}
+
+/// Resource access path.
+message AccessVector {
+    bytes access_vector = 1;
+}
+
+/// Returns the structure access vector.
+service VMAccessVector {
+    rpc GetAccessVector (StructIdent) returns (AccessVector) {
+    }
 }

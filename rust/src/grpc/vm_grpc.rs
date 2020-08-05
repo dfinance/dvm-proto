@@ -1,15 +1,92 @@
-/// Status of code contract execution.
+/// An `AbortLocation` specifies where a Move program `abort` occurred, either in a function in
+/// a module, or in a script.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AbortLocation {
+    /// Indicates `abort` occurred in the specified module.
+    #[prost(bytes, tag = "1")]
+    pub address: std::vec::Vec<u8>,
+    /// Indicates the `abort` occurred in a script.
+    #[prost(string, tag = "2")]
+    pub module: std::string::String,
+}
+/// Function location.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FunctionLoc {
+    /// Function index.
+    #[prost(uint64, tag = "1")]
+    pub function: u64,
+    /// Code offset.
+    #[prost(uint64, tag = "2")]
+    pub code_offset: u64,
+}
+/// VmStatus `Error` case.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MoveError {
+    /// Status code.
+    #[prost(uint64, tag = "2")]
+    pub status_code: u64,
+}
+/// VmStatus `MoveAbort` case.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Abort {
+    /// Abort location. (optional). Null if abort occurred in the script.
+    #[prost(message, optional, tag = "1")]
+    pub abort_location: ::std::option::Option<AbortLocation>,
+    /// Abort code.
+    #[prost(uint64, tag = "2")]
+    pub abort_code: u64,
+}
+/// VmStatus `ExecutionFailure` case.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Failure {
+    /// Status code.
+    #[prost(uint64, tag = "1")]
+    pub status_code: u64,
+    /// Abort location. (optional). Null if abort occurred in the script.
+    #[prost(message, optional, tag = "2")]
+    pub abort_location: ::std::option::Option<AbortLocation>,
+    /// Function location.
+    #[prost(message, optional, tag = "3")]
+    pub function_loc: ::std::option::Option<FunctionLoc>,
+}
+//// Message.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Message {
+    /// Message with error details if needed.
+    #[prost(string, tag = "1")]
+    pub text: std::string::String,
+}
+/// A `VMStatus` is represented as either
+/// - `Null` indicating successful execution.
+/// - `Error` indicating an error from the VM itself.
+/// - `MoveAbort` indicating an `abort` ocurred inside of a Move program
+/// - `ExecutionFailure` indicating an runtime error.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VmStatus {
-    /// Major status.
-    #[prost(uint64, tag = "1")]
-    pub major_status: u64,
-    /// Sub status if needed (optional).
-    #[prost(uint64, tag = "2")]
-    pub sub_status: u64,
     /// Message with error details if needed (optional).
-    #[prost(string, tag = "3")]
-    pub message: std::string::String,
+    #[prost(message, optional, tag = "4")]
+    pub message: ::std::option::Option<Message>,
+    #[prost(oneof = "vm_status::Error", tags = "1, 2, 3")]
+    pub error: ::std::option::Option<vm_status::Error>,
+}
+pub mod vm_status {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Error {
+        /// Indicates an error from the VM, e.g. OUT_OF_GAS, INVALID_AUTH_KEY, RET_TYPE_MISMATCH_ERROR
+        /// etc.
+        /// The code will neither EXECUTED nor ABORTED
+        #[prost(message, tag = "1")]
+        MoveError(super::MoveError),
+        /// Indicates an error from the VM, e.g. OUT_OF_GAS, INVALID_AUTH_KEY, RET_TYPE_MISMATCH_ERROR
+        /// etc.
+        /// The code will neither EXECUTED nor ABORTED
+        #[prost(message, tag = "2")]
+        Abort(super::Abort),
+        /// Indicates an failure from inside Move code, where the VM could not continue exection, e.g.
+        /// dividing by zero or a missing resource
+        #[prost(message, tag = "3")]
+        ExecutionFailure(super::Failure),
+    }
 }
 //// Full name of the structure.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -130,10 +207,10 @@ pub struct VmExecuteScript {
     #[prost(bytes, tag = "4")]
     pub code: std::vec::Vec<u8>,
     /// type parameters.
-    #[prost(message, repeated, tag = "7")]
+    #[prost(message, repeated, tag = "5")]
     pub type_params: ::std::vec::Vec<StructIdent>,
     /// Contract arguments.
-    #[prost(message, repeated, tag = "8")]
+    #[prost(message, repeated, tag = "6")]
     pub args: ::std::vec::Vec<VmArgs>,
 }
 /// Response from VM contains write_set, events, gas used and status for specific contract.
@@ -148,12 +225,9 @@ pub struct VmExecuteResponse {
     /// Gas used during execution.
     #[prost(uint64, tag = "3")]
     pub gas_used: u64,
-    /// Status of contract execution.
-    #[prost(enumeration = "ContractStatus", tag = "4")]
-    pub status: i32,
     /// Main status of execution, might contain an error.
-    #[prost(message, optional, tag = "5")]
-    pub status_struct: ::std::option::Option<VmStatus>,
+    #[prost(message, optional, tag = "4")]
+    pub status: ::std::option::Option<VmStatus>,
 }
 /// Compiler API
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -223,15 +297,6 @@ pub struct VmScript {
 pub struct Signature {
     #[prost(enumeration = "VmTypeTag", repeated, tag = "1")]
     pub arguments: ::std::vec::Vec<i32>,
-}
-/// Status of contract execution.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-#[repr(i32)]
-pub enum ContractStatus {
-    /// If transaction should be ignored, because of error.
-    Discard = 0,
-    /// If we keep transaction and write write_set.
-    Keep = 1,
 }
 /// Type of contract argument.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]

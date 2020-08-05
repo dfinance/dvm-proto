@@ -2,17 +2,71 @@ syntax = "proto3";
 
 package vm_grpc;
 
-// Status of contract execution.
-enum ContractStatus {
-    Discard = 0; // If transaction should be ignored, because of error.
-    Keep = 1; // If we keep transaction and write write_set.
+// An `AbortLocation` specifies where a Move program `abort` occurred, either in a function in
+// a module, or in a script.
+message AbortLocation {
+    bytes address = 1; // Indicates `abort` occurred in the specified module.
+    string module = 2; // Indicates the `abort` occurred in a script.
 }
 
-// Status of code contract execution.
+// Function location.
+message FunctionLoc {
+    uint64 function = 1; // Function index.
+    uint64 code_offset = 2; // Code offset.
+
+}
+
+// VmStatus `Error` case.
+message MoveError {
+    // Status code.
+    uint64 status_code = 2;
+}
+
+// VmStatus `MoveAbort` case.
+message Abort {
+    // Abort location. (optional). Null if abort occurred in the script.
+    AbortLocation abort_location = 1;
+    // Abort code.
+    uint64 abort_code = 2;
+}
+
+// VmStatus `ExecutionFailure` case.
+message Failure {
+    // Status code.
+    uint64 status_code = 1;
+    // Abort location. (optional). Null if abort occurred in the script.
+    AbortLocation abort_location = 2;
+    // Function location.
+    FunctionLoc function_loc = 3;
+}
+
+/// Message.
+message Message {
+    // Message with error details if needed.
+    string text = 1;
+}
+
+// A `VMStatus` is represented as either
+// - `Null` indicating successful execution.
+// - `Error` indicating an error from the VM itself.
+// - `MoveAbort` indicating an `abort` ocurred inside of a Move program
+// - `ExecutionFailure` indicating an runtime error.
 message VMStatus {
-    uint64 major_status = 1; // Major status.
-    uint64 sub_status = 2; // Sub status if needed (optional).
-    string message = 3; // Message with error details if needed (optional).
+    oneof error {
+        // Indicates an error from the VM, e.g. OUT_OF_GAS, INVALID_AUTH_KEY, RET_TYPE_MISMATCH_ERROR
+        // etc.
+        // The code will neither EXECUTED nor ABORTED
+        MoveError move_error = 1;
+        // Indicates an error from the VM, e.g. OUT_OF_GAS, INVALID_AUTH_KEY, RET_TYPE_MISMATCH_ERROR
+        // etc.
+        // The code will neither EXECUTED nor ABORTED
+        Abort abort = 2;
+        // Indicates an failure from inside Move code, where the VM could not continue exection, e.g.
+        // dividing by zero or a missing resource
+        Failure execution_failure = 3;
+    }
+    // Message with error details if needed (optional).
+    Message message = 4;
 }
 
 // Type of contract argument.
@@ -103,8 +157,8 @@ message VMExecuteScript {
     uint64 max_gas_amount = 2; // maximal total gas specified by wallet to spend for this transaction.
     uint64 gas_unit_price = 3; // maximal price can be paid per gas.
     bytes code = 4; // compiled contract code.
-    repeated StructIdent type_params = 7; // type parameters.
-    repeated VMArgs args = 8; // Contract arguments.
+    repeated StructIdent type_params = 5; // type parameters.
+    repeated VMArgs args = 6; // Contract arguments.
 }
 
 // Response from VM contains write_set, events, gas used and status for specific contract.
@@ -112,8 +166,7 @@ message VMExecuteResponse {
     repeated VMValue write_set = 1; // using string instead of bytes for now, as map support only ints and strings as keys
     repeated VMEvent events = 2; // list of events executed during contract execution
     uint64 gas_used = 3; // Gas used during execution.
-    ContractStatus status = 4; // Status of contract execution.
-    VMStatus statusStruct = 5; // Main status of execution, might contain an error.
+    VMStatus status = 4; // Main status of execution, might contain an error.
 }
 
 // GRPC service

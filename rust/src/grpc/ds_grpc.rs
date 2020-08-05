@@ -132,7 +132,6 @@ pub mod ds_service_server {
     }
     #[doc = " GRPC service"]
     #[derive(Debug)]
-    #[doc(hidden)]
     pub struct DsServiceServer<T: DsService> {
         inner: _Inner<T>,
     }
@@ -175,7 +174,7 @@ pub mod ds_service_server {
                             request: tonic::Request<super::DsAccessPath>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.get_raw(request).await };
+                            let fut = async move { (*inner).get_raw(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -206,7 +205,7 @@ pub mod ds_service_server {
                             request: tonic::Request<super::DsAccessPaths>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.multi_get_raw(request).await };
+                            let fut = async move { (*inner).multi_get_raw(request).await };
                             Box::pin(fut)
                         }
                     }

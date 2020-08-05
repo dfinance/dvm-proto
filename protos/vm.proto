@@ -185,14 +185,3 @@ service VMScriptMetadata {
     rpc GetSignature (VMScript) returns (Signature) {
     }
 }
-
-/// Resource access path.
-message AccessVector {
-    bytes access_vector = 1;
-}
-
-/// Returns the structure access vector.
-service VMAccessVector {
-    rpc GetAccessVector (StructIdent) returns (AccessVector) {
-    }
-}

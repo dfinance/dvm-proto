@@ -1,15 +1,92 @@
-/// Status of code contract execution.
+/// An `AbortLocation` specifies where a Move program `abort` occurred, either in a function in
+/// a module, or in a script.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AbortLocation {
+    /// Indicates `abort` occurred in the specified module.
+    #[prost(bytes, tag = "1")]
+    pub address: std::vec::Vec<u8>,
+    /// Indicates the `abort` occurred in a script.
+    #[prost(string, tag = "2")]
+    pub module: std::string::String,
+}
+/// Function location.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct FunctionLoc {
+    /// Function index.
+    #[prost(uint64, tag = "1")]
+    pub function: u64,
+    /// Code offset.
+    #[prost(uint64, tag = "2")]
+    pub code_offset: u64,
+}
+/// VmStatus `Error` case.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MoveError {
+    /// Status code.
+    #[prost(uint64, tag = "2")]
+    pub status_code: u64,
+}
+/// VmStatus `MoveAbort` case.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Abort {
+    /// Abort location. (optional). Null if abort occurred in the script.
+    #[prost(message, optional, tag = "1")]
+    pub abort_location: ::std::option::Option<AbortLocation>,
+    /// Abort code.
+    #[prost(uint64, tag = "2")]
+    pub abort_code: u64,
+}
+/// VmStatus `ExecutionFailure` case.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Failure {
+    /// Status code.
+    #[prost(uint64, tag = "1")]
+    pub status_code: u64,
+    /// Abort location. (optional). Null if abort occurred in the script.
+    #[prost(message, optional, tag = "2")]
+    pub abort_location: ::std::option::Option<AbortLocation>,
+    /// Function location.
+    #[prost(message, optional, tag = "3")]
+    pub function_loc: ::std::option::Option<FunctionLoc>,
+}
+//// Message.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Message {
+    /// Message with error details if needed.
+    #[prost(string, tag = "1")]
+    pub text: std::string::String,
+}
+/// A `VMStatus` is represented as either
+/// - `Null` indicating successful execution.
+/// - `Error` indicating an error from the VM itself.
+/// - `MoveAbort` indicating an `abort` ocurred inside of a Move program
+/// - `ExecutionFailure` indicating an runtime error.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VmStatus {
-    /// Major status.
-    #[prost(uint64, tag = "1")]
-    pub major_status: u64,
-    /// Sub status if needed (optional).
-    #[prost(uint64, tag = "2")]
-    pub sub_status: u64,
     /// Message with error details if needed (optional).
-    #[prost(string, tag = "3")]
-    pub message: std::string::String,
+    #[prost(message, optional, tag = "4")]
+    pub message: ::std::option::Option<Message>,
+    #[prost(oneof = "vm_status::Error", tags = "1, 2, 3")]
+    pub error: ::std::option::Option<vm_status::Error>,
+}
+pub mod vm_status {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Error {
+        /// Indicates an error from the VM, e.g. OUT_OF_GAS, INVALID_AUTH_KEY, RET_TYPE_MISMATCH_ERROR
+        /// etc.
+        /// The code will neither EXECUTED nor ABORTED
+        #[prost(message, tag = "1")]
+        MoveError(super::MoveError),
+        /// Indicates an error from the VM, e.g. OUT_OF_GAS, INVALID_AUTH_KEY, RET_TYPE_MISMATCH_ERROR
+        /// etc.
+        /// The code will neither EXECUTED nor ABORTED
+        #[prost(message, tag = "2")]
+        Abort(super::Abort),
+        /// Indicates an failure from inside Move code, where the VM could not continue exection, e.g.
+        /// dividing by zero or a missing resource
+        #[prost(message, tag = "3")]
+        ExecutionFailure(super::Failure),
+    }
 }
 //// Full name of the structure.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -130,10 +207,10 @@ pub struct VmExecuteScript {
     #[prost(bytes, tag = "4")]
     pub code: std::vec::Vec<u8>,
     /// type parameters.
-    #[prost(message, repeated, tag = "7")]
+    #[prost(message, repeated, tag = "5")]
     pub type_params: ::std::vec::Vec<StructIdent>,
     /// Contract arguments.
-    #[prost(message, repeated, tag = "8")]
+    #[prost(message, repeated, tag = "6")]
     pub args: ::std::vec::Vec<VmArgs>,
 }
 /// Response from VM contains write_set, events, gas used and status for specific contract.
@@ -148,12 +225,9 @@ pub struct VmExecuteResponse {
     /// Gas used during execution.
     #[prost(uint64, tag = "3")]
     pub gas_used: u64,
-    /// Status of contract execution.
-    #[prost(enumeration = "ContractStatus", tag = "4")]
-    pub status: i32,
     /// Main status of execution, might contain an error.
-    #[prost(message, optional, tag = "5")]
-    pub status_struct: ::std::option::Option<VmStatus>,
+    #[prost(message, optional, tag = "4")]
+    pub status: ::std::option::Option<VmStatus>,
 }
 /// Compiler API
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -223,21 +297,6 @@ pub struct VmScript {
 pub struct Signature {
     #[prost(enumeration = "VmTypeTag", repeated, tag = "1")]
     pub arguments: ::std::vec::Vec<i32>,
-}
-//// Resource access path.
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct AccessVector {
-    #[prost(bytes, tag = "1")]
-    pub access_vector: std::vec::Vec<u8>,
-}
-/// Status of contract execution.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-#[repr(i32)]
-pub enum ContractStatus {
-    /// If transaction should be ignored, because of error.
-    Discard = 0,
-    /// If we keep transaction and write write_set.
-    Keep = 1,
 }
 /// Type of contract argument.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -596,69 +655,6 @@ pub mod vm_script_metadata_client {
         }
     }
 }
-#[doc = r" Generated client implementations."]
-pub mod vm_access_vector_client {
-    #![allow(unused_variables, dead_code, missing_docs)]
-    use tonic::codegen::*;
-    #[doc = "/ Returns the structure access vector."]
-    pub struct VmAccessVectorClient<T> {
-        inner: tonic::client::Grpc<T>,
-    }
-    impl VmAccessVectorClient<tonic::transport::Channel> {
-        #[doc = r" Attempt to create a new client by connecting to a given endpoint."]
-        pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
-        where
-            D: std::convert::TryInto<tonic::transport::Endpoint>,
-            D::Error: Into<StdError>,
-        {
-            let conn = tonic::transport::Endpoint::new(dst)?.connect().await?;
-            Ok(Self::new(conn))
-        }
-    }
-    impl<T> VmAccessVectorClient<T>
-    where
-        T: tonic::client::GrpcService<tonic::body::BoxBody>,
-        T::ResponseBody: Body + HttpBody + Send + 'static,
-        T::Error: Into<StdError>,
-        <T::ResponseBody as HttpBody>::Error: Into<StdError> + Send,
-    {
-        pub fn new(inner: T) -> Self {
-            let inner = tonic::client::Grpc::new(inner);
-            Self { inner }
-        }
-        pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
-            let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
-            Self { inner }
-        }
-        pub async fn get_access_vector(
-            &mut self,
-            request: impl tonic::IntoRequest<super::StructIdent>,
-        ) -> Result<tonic::Response<super::AccessVector>, tonic::Status> {
-            self.inner.ready().await.map_err(|e| {
-                tonic::Status::new(
-                    tonic::Code::Unknown,
-                    format!("Service was not ready: {}", e.into()),
-                )
-            })?;
-            let codec = tonic::codec::ProstCodec::default();
-            let path =
-                http::uri::PathAndQuery::from_static("/vm_grpc.VMAccessVector/GetAccessVector");
-            self.inner.unary(request.into_request(), path, codec).await
-        }
-    }
-    impl<T: Clone> Clone for VmAccessVectorClient<T> {
-        fn clone(&self) -> Self {
-            Self {
-                inner: self.inner.clone(),
-            }
-        }
-    }
-    impl<T> std::fmt::Debug for VmAccessVectorClient<T> {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "VmAccessVectorClient {{ ... }}")
-        }
-    }
-}
 #[doc = r" Generated server implementations."]
 pub mod vm_module_publisher_server {
     #![allow(unused_variables, dead_code, missing_docs)]
@@ -673,7 +669,6 @@ pub mod vm_module_publisher_server {
     }
     #[doc = " GRPC service"]
     #[derive(Debug)]
-    #[doc(hidden)]
     pub struct VmModulePublisherServer<T: VmModulePublisher> {
         inner: _Inner<T>,
     }
@@ -718,7 +713,7 @@ pub mod vm_module_publisher_server {
                             request: tonic::Request<super::VmPublishModule>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.publish_module(request).await };
+                            let fut = async move { (*inner).publish_module(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -781,7 +776,6 @@ pub mod vm_script_executor_server {
         ) -> Result<tonic::Response<super::VmExecuteResponse>, tonic::Status>;
     }
     #[derive(Debug)]
-    #[doc(hidden)]
     pub struct VmScriptExecutorServer<T: VmScriptExecutor> {
         inner: _Inner<T>,
     }
@@ -826,7 +820,7 @@ pub mod vm_script_executor_server {
                             request: tonic::Request<super::VmExecuteScript>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.execute_script(request).await };
+                            let fut = async move { (*inner).execute_script(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -889,7 +883,6 @@ pub mod vm_compiler_server {
         ) -> Result<tonic::Response<super::CompilationResult>, tonic::Status>;
     }
     #[derive(Debug)]
-    #[doc(hidden)]
     pub struct VmCompilerServer<T: VmCompiler> {
         inner: _Inner<T>,
     }
@@ -932,7 +925,7 @@ pub mod vm_compiler_server {
                             request: tonic::Request<super::SourceFile>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.compile(request).await };
+                            let fut = async move { (*inner).compile(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -995,7 +988,6 @@ pub mod vm_multiple_sources_compiler_server {
         ) -> Result<tonic::Response<super::MultipleCompilationResult>, tonic::Status>;
     }
     #[derive(Debug)]
-    #[doc(hidden)]
     pub struct VmMultipleSourcesCompilerServer<T: VmMultipleSourcesCompiler> {
         inner: _Inner<T>,
     }
@@ -1040,7 +1032,7 @@ pub mod vm_multiple_sources_compiler_server {
                             request: tonic::Request<super::SourceFiles>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.compile(request).await };
+                            let fut = async move { (*inner).compile(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1106,7 +1098,6 @@ pub mod vm_script_metadata_server {
     }
     #[doc = " Returns argument names/types for script."]
     #[derive(Debug)]
-    #[doc(hidden)]
     pub struct VmScriptMetadataServer<T: VmScriptMetadata> {
         inner: _Inner<T>,
     }
@@ -1149,7 +1140,7 @@ pub mod vm_script_metadata_server {
                             request: tonic::Request<super::VmScript>,
                         ) -> Self::Future {
                             let inner = self.0.clone();
-                            let fut = async move { inner.get_signature(request).await };
+                            let fut = async move { (*inner).get_signature(request).await };
                             Box::pin(fut)
                         }
                     }
@@ -1197,112 +1188,5 @@ pub mod vm_script_metadata_server {
     }
     impl<T: VmScriptMetadata> tonic::transport::NamedService for VmScriptMetadataServer<T> {
         const NAME: &'static str = "vm_grpc.VMScriptMetadata";
-    }
-}
-#[doc = r" Generated server implementations."]
-pub mod vm_access_vector_server {
-    #![allow(unused_variables, dead_code, missing_docs)]
-    use tonic::codegen::*;
-    #[doc = "Generated trait containing gRPC methods that should be implemented for use with VmAccessVectorServer."]
-    #[async_trait]
-    pub trait VmAccessVector: Send + Sync + 'static {
-        async fn get_access_vector(
-            &self,
-            request: tonic::Request<super::StructIdent>,
-        ) -> Result<tonic::Response<super::AccessVector>, tonic::Status>;
-    }
-    #[doc = "/ Returns the structure access vector."]
-    #[derive(Debug)]
-    #[doc(hidden)]
-    pub struct VmAccessVectorServer<T: VmAccessVector> {
-        inner: _Inner<T>,
-    }
-    struct _Inner<T>(Arc<T>, Option<tonic::Interceptor>);
-    impl<T: VmAccessVector> VmAccessVectorServer<T> {
-        pub fn new(inner: T) -> Self {
-            let inner = Arc::new(inner);
-            let inner = _Inner(inner, None);
-            Self { inner }
-        }
-        pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
-            let inner = Arc::new(inner);
-            let inner = _Inner(inner, Some(interceptor.into()));
-            Self { inner }
-        }
-    }
-    impl<T, B> Service<http::Request<B>> for VmAccessVectorServer<T>
-    where
-        T: VmAccessVector,
-        B: HttpBody + Send + Sync + 'static,
-        B::Error: Into<StdError> + Send + 'static,
-    {
-        type Response = http::Response<tonic::body::BoxBody>;
-        type Error = Never;
-        type Future = BoxFuture<Self::Response, Self::Error>;
-        fn poll_ready(&mut self, _cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
-            Poll::Ready(Ok(()))
-        }
-        fn call(&mut self, req: http::Request<B>) -> Self::Future {
-            let inner = self.inner.clone();
-            match req.uri().path() {
-                "/vm_grpc.VMAccessVector/GetAccessVector" => {
-                    #[allow(non_camel_case_types)]
-                    struct GetAccessVectorSvc<T: VmAccessVector>(pub Arc<T>);
-                    impl<T: VmAccessVector> tonic::server::UnaryService<super::StructIdent> for GetAccessVectorSvc<T> {
-                        type Response = super::AccessVector;
-                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
-                        fn call(
-                            &mut self,
-                            request: tonic::Request<super::StructIdent>,
-                        ) -> Self::Future {
-                            let inner = self.0.clone();
-                            let fut = async move { inner.get_access_vector(request).await };
-                            Box::pin(fut)
-                        }
-                    }
-                    let inner = self.inner.clone();
-                    let fut = async move {
-                        let interceptor = inner.1.clone();
-                        let inner = inner.0;
-                        let method = GetAccessVectorSvc(inner);
-                        let codec = tonic::codec::ProstCodec::default();
-                        let mut grpc = if let Some(interceptor) = interceptor {
-                            tonic::server::Grpc::with_interceptor(codec, interceptor)
-                        } else {
-                            tonic::server::Grpc::new(codec)
-                        };
-                        let res = grpc.unary(method, req).await;
-                        Ok(res)
-                    };
-                    Box::pin(fut)
-                }
-                _ => Box::pin(async move {
-                    Ok(http::Response::builder()
-                        .status(200)
-                        .header("grpc-status", "12")
-                        .body(tonic::body::BoxBody::empty())
-                        .unwrap())
-                }),
-            }
-        }
-    }
-    impl<T: VmAccessVector> Clone for VmAccessVectorServer<T> {
-        fn clone(&self) -> Self {
-            let inner = self.inner.clone();
-            Self { inner }
-        }
-    }
-    impl<T: VmAccessVector> Clone for _Inner<T> {
-        fn clone(&self) -> Self {
-            Self(self.0.clone(), self.1.clone())
-        }
-    }
-    impl<T: std::fmt::Debug> std::fmt::Debug for _Inner<T> {
-        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "{:?}", self.0)
-        }
-    }
-    impl<T: VmAccessVector> tonic::transport::NamedService for VmAccessVectorServer<T> {
-        const NAME: &'static str = "vm_grpc.VMAccessVector";
     }
 }

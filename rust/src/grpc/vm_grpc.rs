@@ -178,9 +178,9 @@ pub struct VmArgs {
 /// Publish module.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VmPublishModule {
-    /// owner of contract (module) or script executor.
+    /// owner of contract.
     #[prost(bytes, tag = "1")]
-    pub address: std::vec::Vec<u8>,
+    pub sender: std::vec::Vec<u8>,
     /// maximal total gas specified by wallet to spend for this transaction.
     #[prost(uint64, tag = "2")]
     pub max_gas_amount: u64,
@@ -194,9 +194,9 @@ pub struct VmPublishModule {
 /// VM contract object to process.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VmExecuteScript {
-    /// owner of contract (module) or script executor.
-    #[prost(bytes, tag = "1")]
-    pub address: std::vec::Vec<u8>,
+    /// owners of contract.
+    #[prost(bytes, repeated, tag = "1")]
+    pub senders: ::std::vec::Vec<std::vec::Vec<u8>>,
     /// maximal total gas specified by wallet to spend for this transaction.
     #[prost(uint64, tag = "2")]
     pub max_gas_amount: u64,

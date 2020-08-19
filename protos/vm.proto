@@ -145,7 +145,7 @@ message VMArgs {
 
 // Publish module.
 message VMPublishModule {
-    bytes address = 1; // owner of contract (module) or script executor.
+    bytes sender = 1; // owner of contract.
     uint64 max_gas_amount = 2; // maximal total gas specified by wallet to spend for this transaction.
     uint64 gas_unit_price = 3; // maximal price can be paid per gas.
     bytes code = 4; // compiled contract code.
@@ -153,7 +153,7 @@ message VMPublishModule {
 
 // VM contract object to process.
 message VMExecuteScript {
-    bytes address = 1; // owner of contract (module) or script executor.
+    repeated bytes senders = 1; // owners of contract.
     uint64 max_gas_amount = 2; // maximal total gas specified by wallet to spend for this transaction.
     uint64 gas_unit_price = 3; // maximal price can be paid per gas.
     bytes code = 4; // compiled contract code.

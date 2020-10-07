@@ -35,7 +35,7 @@ message Function {
 
 // Script metadata.
 message ScriptMeta {
-    string name = 1; // Script name.
+    repeated string type_parameters = 1; // Script type parameters.
     repeated types.VMTypeTag arguments = 2; // Script arguments.
 }
 

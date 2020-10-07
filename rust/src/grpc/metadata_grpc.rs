@@ -44,9 +44,9 @@ pub struct Function {
 /// Script metadata.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScriptMeta {
-    /// Script name.
-    #[prost(string, tag = "1")]
-    pub name: std::string::String,
+    /// Script type parameters.
+    #[prost(string, repeated, tag = "1")]
+    pub type_parameters: ::std::vec::Vec<std::string::String>,
     /// Script arguments.
     #[prost(enumeration = "super::types::VmTypeTag", repeated, tag = "2")]
     pub arguments: ::std::vec::Vec<i32>,

@@ -82,14 +82,14 @@ pub mod metadata {
     }
 }
 #[doc = r" Generated client implementations."]
-pub mod vm_bytecode_metadata_client {
+pub mod dvm_bytecode_metadata_client {
     #![allow(unused_variables, dead_code, missing_docs)]
     use tonic::codegen::*;
     #[doc = " Returns bytecode metadata."]
-    pub struct VmBytecodeMetadataClient<T> {
+    pub struct DvmBytecodeMetadataClient<T> {
         inner: tonic::client::Grpc<T>,
     }
-    impl VmBytecodeMetadataClient<tonic::transport::Channel> {
+    impl DvmBytecodeMetadataClient<tonic::transport::Channel> {
         #[doc = r" Attempt to create a new client by connecting to a given endpoint."]
         pub async fn connect<D>(dst: D) -> Result<Self, tonic::transport::Error>
         where
@@ -100,7 +100,7 @@ pub mod vm_bytecode_metadata_client {
             Ok(Self::new(conn))
         }
     }
-    impl<T> VmBytecodeMetadataClient<T>
+    impl<T> DvmBytecodeMetadataClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
         T::ResponseBody: Body + HttpBody + Send + 'static,
@@ -127,31 +127,31 @@ pub mod vm_bytecode_metadata_client {
             })?;
             let codec = tonic::codec::ProstCodec::default();
             let path = http::uri::PathAndQuery::from_static(
-                "/metadata_grpc.VMBytecodeMetadata/GetMetadata",
+                "/metadata_grpc.DVMBytecodeMetadata/GetMetadata",
             );
             self.inner.unary(request.into_request(), path, codec).await
         }
     }
-    impl<T: Clone> Clone for VmBytecodeMetadataClient<T> {
+    impl<T: Clone> Clone for DvmBytecodeMetadataClient<T> {
         fn clone(&self) -> Self {
             Self {
                 inner: self.inner.clone(),
             }
         }
     }
-    impl<T> std::fmt::Debug for VmBytecodeMetadataClient<T> {
+    impl<T> std::fmt::Debug for DvmBytecodeMetadataClient<T> {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            write!(f, "VmBytecodeMetadataClient {{ ... }}")
+            write!(f, "DvmBytecodeMetadataClient {{ ... }}")
         }
     }
 }
 #[doc = r" Generated server implementations."]
-pub mod vm_bytecode_metadata_server {
+pub mod dvm_bytecode_metadata_server {
     #![allow(unused_variables, dead_code, missing_docs)]
     use tonic::codegen::*;
-    #[doc = "Generated trait containing gRPC methods that should be implemented for use with VmBytecodeMetadataServer."]
+    #[doc = "Generated trait containing gRPC methods that should be implemented for use with DvmBytecodeMetadataServer."]
     #[async_trait]
-    pub trait VmBytecodeMetadata: Send + Sync + 'static {
+    pub trait DvmBytecodeMetadata: Send + Sync + 'static {
         async fn get_metadata(
             &self,
             request: tonic::Request<super::Bytecode>,
@@ -159,11 +159,11 @@ pub mod vm_bytecode_metadata_server {
     }
     #[doc = " Returns bytecode metadata."]
     #[derive(Debug)]
-    pub struct VmBytecodeMetadataServer<T: VmBytecodeMetadata> {
+    pub struct DvmBytecodeMetadataServer<T: DvmBytecodeMetadata> {
         inner: _Inner<T>,
     }
     struct _Inner<T>(Arc<T>, Option<tonic::Interceptor>);
-    impl<T: VmBytecodeMetadata> VmBytecodeMetadataServer<T> {
+    impl<T: DvmBytecodeMetadata> DvmBytecodeMetadataServer<T> {
         pub fn new(inner: T) -> Self {
             let inner = Arc::new(inner);
             let inner = _Inner(inner, None);
@@ -175,9 +175,9 @@ pub mod vm_bytecode_metadata_server {
             Self { inner }
         }
     }
-    impl<T, B> Service<http::Request<B>> for VmBytecodeMetadataServer<T>
+    impl<T, B> Service<http::Request<B>> for DvmBytecodeMetadataServer<T>
     where
-        T: VmBytecodeMetadata,
+        T: DvmBytecodeMetadata,
         B: HttpBody + Send + Sync + 'static,
         B::Error: Into<StdError> + Send + 'static,
     {
@@ -190,10 +190,10 @@ pub mod vm_bytecode_metadata_server {
         fn call(&mut self, req: http::Request<B>) -> Self::Future {
             let inner = self.inner.clone();
             match req.uri().path() {
-                "/metadata_grpc.VMBytecodeMetadata/GetMetadata" => {
+                "/metadata_grpc.DVMBytecodeMetadata/GetMetadata" => {
                     #[allow(non_camel_case_types)]
-                    struct GetMetadataSvc<T: VmBytecodeMetadata>(pub Arc<T>);
-                    impl<T: VmBytecodeMetadata> tonic::server::UnaryService<super::Bytecode> for GetMetadataSvc<T> {
+                    struct GetMetadataSvc<T: DvmBytecodeMetadata>(pub Arc<T>);
+                    impl<T: DvmBytecodeMetadata> tonic::server::UnaryService<super::Bytecode> for GetMetadataSvc<T> {
                         type Response = super::Metadata;
                         type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
                         fn call(
@@ -231,13 +231,13 @@ pub mod vm_bytecode_metadata_server {
             }
         }
     }
-    impl<T: VmBytecodeMetadata> Clone for VmBytecodeMetadataServer<T> {
+    impl<T: DvmBytecodeMetadata> Clone for DvmBytecodeMetadataServer<T> {
         fn clone(&self) -> Self {
             let inner = self.inner.clone();
             Self { inner }
         }
     }
-    impl<T: VmBytecodeMetadata> Clone for _Inner<T> {
+    impl<T: DvmBytecodeMetadata> Clone for _Inner<T> {
         fn clone(&self) -> Self {
             Self(self.0.clone(), self.1.clone())
         }
@@ -247,7 +247,7 @@ pub mod vm_bytecode_metadata_server {
             write!(f, "{:?}", self.0)
         }
     }
-    impl<T: VmBytecodeMetadata> tonic::transport::NamedService for VmBytecodeMetadataServer<T> {
-        const NAME: &'static str = "metadata_grpc.VMBytecodeMetadata";
+    impl<T: DvmBytecodeMetadata> tonic::transport::NamedService for DvmBytecodeMetadataServer<T> {
+        const NAME: &'static str = "metadata_grpc.DVMBytecodeMetadata";
     }
 }

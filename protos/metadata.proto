@@ -57,7 +57,7 @@ message Metadata {
 }
 
 // Returns bytecode metadata.
-service VMBytecodeMetadata {
+service DVMBytecodeMetadata {
     rpc GetMetadata (Bytecode) returns (Metadata) {
     }
 }

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package types;
+option go_package = "github.com/dfinance/dvm-proto/go/types_grpc";
+
+// Type of contract argument.
+enum VMTypeTag {
+    Bool = 0; // Bool 0x0 - false, 0x1 - true.
+    U64 = 1; // Uint64. Little-endian unsigned 64 bits integer.
+    Vector = 2; // Vector of bytes.
+    Address = 3; // Address, in bech32 form. 20 bytes.
+    U8 = 4; // U8
+    U128 = 5; // U128 Little-endian unsigned 128 bits integer.
+}

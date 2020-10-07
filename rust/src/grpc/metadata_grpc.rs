@@ -44,11 +44,11 @@ pub struct Function {
 /// Script metadata.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ScriptMeta {
-    /// Script type parameters.
-    #[prost(string, repeated, tag = "1")]
+    #[prost(uint32, tag = "1")]
+    pub signers_count: u32,
+    #[prost(string, repeated, tag = "2")]
     pub type_parameters: ::std::vec::Vec<std::string::String>,
-    /// Script arguments.
-    #[prost(enumeration = "super::types::VmTypeTag", repeated, tag = "2")]
+    #[prost(enumeration = "super::types::VmTypeTag", repeated, tag = "3")]
     pub arguments: ::std::vec::Vec<i32>,
 }
 /// Module metadata.

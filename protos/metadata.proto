@@ -35,8 +35,9 @@ message Function {
 
 // Script metadata.
 message ScriptMeta {
-    repeated string type_parameters = 1; // Script type parameters.
-    repeated types.VMTypeTag arguments = 2; // Script arguments.
+    uint32 signers_count = 1;
+    repeated string type_parameters = 2;
+    repeated types.VMTypeTag arguments = 3;
 }
 
 // Module metadata.

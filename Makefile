@@ -21,11 +21,11 @@ gen-go:
 	mkdir -p ${GO_PROTO_OUT_METADATA_DIR}
 	mkdir -p ${GO_PROTO_OUT_VM_DIR}
 
-	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_TYPES_DIR) $(PROTOBUF_TYPES_FILES)
 	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_COMPILER_DIR) $(PROTOBUF_COMPILER_FILES)
 	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_DS_DIR) $(PROTOBUF_DS_FILES)
 	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_METADATA_DIR) $(PROTOBUF_METADATA_FILES)
 	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_VM_DIR) $(PROTOBUF_VM_FILES)
+	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_TYPES_DIR) --go_opt=paths=source_relative  $(PROTOBUF_TYPES_FILES)
 
 deps:
 	@echo "  >  Checking if there is any missing dependencies..."

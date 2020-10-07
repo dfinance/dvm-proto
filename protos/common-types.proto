@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package types;
+option go_package = "github.com/dfinance/dvm-proto/go/types_grpc";
 
 // Type of contract argument.
 enum VMTypeTag {

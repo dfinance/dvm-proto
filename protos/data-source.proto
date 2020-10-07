@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package ds_grpc;
 
-
 message DSAccessPath {
     bytes address = 1; // AccountAddress
     bytes path = 2;

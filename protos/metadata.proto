@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+package metadata_grpc;
+
+import "common-types.proto";
+
+// Bytecode.
+message Bytecode {
+    bytes code = 1; // bytecode of script
+}
+
+// Struct field.
+message Field {
+    string name = 1;
+    string type = 2;
+}
+
+/// Struct representation.
+message Struct {
+    string name = 1;
+    bool isResource = 2;
+    repeated string type_parameters = 3;
+    repeated Field field = 4;
+}
+
+/// Function representation.
+message Function {
+    string name = 1;
+    bool isPublic = 2;
+    bool isNative = 3;
+    repeated string type_parameters = 4;
+    repeated string arguments = 5;
+    repeated string returns = 6;
+}
+
+// Script metadata.
+message ScriptMeta {
+    string name = 1; // Script name.
+    repeated types.VMTypeTag arguments = 2; // Script arguments.
+}
+
+// Module metadata.
+message ModuleMeta {
+    string name = 1; // module name.
+    repeated Struct types = 2; // Types defined in a module.
+    repeated Function functions = 3; // Functions defined in a module.
+}
+
+// Bytecode metadata.
+message Metadata {
+    oneof meta {
+        // In case the provided bytecode is a script.
+        ScriptMeta script = 1;
+        // In case the provided bytecode is a module.
+        ModuleMeta module = 2;
+    }
+}
+
+// Returns bytecode metadata.
+service VMBytecodeMetadata {
+    rpc GetMetadata (Bytecode) returns (Metadata) {
+    }
+}

@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package compiler_grpc;
+
+// Compilation unit.
+message CompilationUnit {
+    string text = 1; // utf8 encoded source code with libra/bech32 addresses
+    string name = 2; // name of the unit.
+}
+
+// Compiler API
+message SourceFiles {
+    repeated CompilationUnit units = 1; // Compilation units.
+    bytes address = 2; // address of the sender, in bech32 form
+}
+
+// Compiled source.
+message CompiledUnit {
+    string name = 1; // name of the module/script.
+    bytes bytecode = 2; // bytecode of the compiled module/script
+}
+
+message CompilationResult {
+    repeated CompiledUnit units = 1;
+    repeated string errors = 2; // list of error messages, empty if successful
+}
+
+service DvmCompiler {
+    rpc Compile (SourceFiles) returns (CompilationResult) {
+    }
+}

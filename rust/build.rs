@@ -5,7 +5,7 @@ use std::path::Path;
 use std::fs::canonicalize;
 
 const OUT_DIR: &str = "src/grpc";
-const PB_PATH: [&str; 2] = ["../protos/vm.proto", "../protos/data-source.proto"];
+const PB_PATH: [&str; 5] = ["../protos/vm.proto", "../protos/common-types.proto", "../protos/compiler.proto", "../protos/metadata.proto", "../protos/data-source.proto"];
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=src/build.rs");

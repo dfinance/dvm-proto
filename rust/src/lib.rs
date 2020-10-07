@@ -3,45 +3,12 @@ pub extern crate tonic;
 pub mod grpc {
     pub mod ds_grpc;
     pub mod vm_grpc;
+    pub mod compiler_grpc;
+    pub mod metadata_grpc;
+    pub mod types;
+
     pub(crate) use ds_grpc as ds;
-    pub(crate) use vm_grpc as vm;
-
-    pub use super::vm_grpc_ext::*;
     pub use super::ds_grpc_ext::*;
-}
-
-mod vm_grpc_ext {
-    use super::grpc::vm::CompilationResult;
-    use super::grpc::vm::{Signature, VmScript, VmTypeTag};
-
-    impl CompilationResult {
-        pub fn with_bytecode(bytecode: Vec<u8>) -> Self {
-            CompilationResult {
-                bytecode,
-                errors: vec![],
-            }
-        }
-
-        pub fn with_errors(errors: Vec<String>) -> Self {
-            CompilationResult {
-                bytecode: vec![],
-                errors,
-            }
-        }
-    }
-
-    impl VmScript {
-        pub fn new(bytecode: Vec<u8>) -> Self {
-            Self { code: bytecode }
-        }
-    }
-
-    impl Signature {
-        pub fn new(args: &[VmTypeTag]) -> Self {
-            let arguments = args.iter().map(|&tag| tag as i32).collect();
-            Self { arguments }
-        }
-    }
 }
 
 mod ds_grpc_ext {

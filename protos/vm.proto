@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package vm_grpc;
 
+import "common-types.proto";
+
 // An `AbortLocation` specifies where a Move program `abort` occurred, either in a function in
 // a module, or in a script.
 message AbortLocation {
@@ -69,16 +71,6 @@ message VMStatus {
     Message message = 4;
 }
 
-// Type of contract argument.
-enum VMTypeTag {
-    Bool = 0; // Bool 0x0 - false, 0x1 - true.
-    U64 = 1; // Uint64. Little-endian unsigned 64 bits integer.
-    Vector = 2; // Vector of bytes.
-    Address = 3; // Address, in bech32 form. 20 bytes.
-    U8 = 4; // U8
-    U128 = 5; // U128 Little-endian unsigned 128 bits integer.
-}
-
 /// Full name of the structure.
 message StructIdent {
     bytes address = 1; // address of module owner
@@ -139,7 +131,7 @@ message VMValue {
 
 // Contract arguments.
 message VMArgs {
-    VMTypeTag type = 1; // Argument type.
+    types.VMTypeTag type = 1; // Argument type.
     bytes value = 2; // Argument value.
 }
 
@@ -180,24 +172,6 @@ service VMScriptExecutor {
     }
 }
 
-// Compiler API
-message SourceFile {
-    string text = 1; // utf8 encoded source code with libra/bech32 addresses
-    bytes address = 2; // address of the sender, in bech32 form
-}
-
-// Compilation unit.
-message CompilationUnit {
-    string text = 1; // utf8 encoded source code with libra/bech32 addresses
-    string name = 2; // name of the unit.
-}
-
-// Compiler API
-message SourceFiles {
-    repeated CompilationUnit units = 1; // Compilation units.
-    bytes address = 2; // address of the sender, in bech32 form
-}
-
 // Compiled source.
 message CompiledUnit {
     string name = 1; // name of the module/script.
@@ -207,34 +181,4 @@ message CompiledUnit {
 message MultipleCompilationResult {
     repeated CompiledUnit units = 1;
     repeated string errors = 2; // list of error messages, empty if successful
-}
-
-message CompilationResult {
-    bytes bytecode = 1; // bytecode of the compiled module/script
-    repeated string errors = 2; // list of error messages, empty if successful
-}
-
-service VMCompiler {
-    rpc Compile (SourceFile) returns (CompilationResult) {
-    }
-}
-
-service VMMultipleSourcesCompiler {
-    rpc Compile (SourceFiles) returns (MultipleCompilationResult) {
-    }
-}
-
-// Script Arguments API
-message VMScript {
-    bytes code = 1; // bytecode of script
-}
-
-message Signature {
-    repeated VMTypeTag arguments = 1;
-}
-
-// Returns argument names/types for script.
-service VMScriptMetadata {
-    rpc GetSignature (VMScript) returns (Signature) {
-    }
 }

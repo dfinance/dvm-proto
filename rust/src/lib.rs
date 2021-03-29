@@ -1,11 +1,11 @@
 pub extern crate tonic;
 
 pub mod grpc {
-    pub mod ds_grpc;
-    pub mod vm_grpc;
     pub mod compiler_grpc;
+    pub mod ds_grpc;
     pub mod metadata_grpc;
     pub mod types;
+    pub mod vm_grpc;
 
     pub(crate) use ds_grpc as ds;
     pub use super::ds_grpc_ext::*;

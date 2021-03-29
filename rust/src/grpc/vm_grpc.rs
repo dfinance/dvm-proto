@@ -203,15 +203,42 @@ pub struct VmExecuteScript {
     /// maximal price can be paid per gas.
     #[prost(uint64, tag = "3")]
     pub gas_unit_price: u64,
+    /// block.
+    #[prost(uint64, tag = "4")]
+    pub block: u64,
+    /// timestamp.
+    #[prost(uint64, tag = "5")]
+    pub timestamp: u64,
     /// compiled contract code.
-    #[prost(bytes, tag = "4")]
+    #[prost(bytes, tag = "6")]
     pub code: std::vec::Vec<u8>,
     /// type parameters.
-    #[prost(message, repeated, tag = "5")]
+    #[prost(message, repeated, tag = "7")]
     pub type_params: ::std::vec::Vec<StructIdent>,
     /// Contract arguments.
-    #[prost(message, repeated, tag = "6")]
+    #[prost(message, repeated, tag = "8")]
     pub args: ::std::vec::Vec<VmArgs>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VmBalanceChange {
+    #[prost(oneof = "vm_balance_change::Op", tags = "1, 2")]
+    pub op: ::std::option::Option<vm_balance_change::Op>,
+}
+pub mod vm_balance_change {
+    #[derive(Clone, PartialEq, ::prost::Oneof)]
+    pub enum Op {
+        /// Little-endian unsigned 128.
+        #[prost(bytes, tag = "1")]
+        Deposit(std::vec::Vec<u8>),
+        /// Little-endian unsigned 128.
+        #[prost(bytes, tag = "2")]
+        Withdraw(std::vec::Vec<u8>),
+    }
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct VmBalanceChangeSet {
+    #[prost(message, repeated, tag = "1")]
+    pub change_set: ::std::vec::Vec<VmBalanceChange>,
 }
 /// Response from VM contains write_set, events, gas used and status for specific contract.
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -222,11 +249,14 @@ pub struct VmExecuteResponse {
     /// list of events executed during contract execution
     #[prost(message, repeated, tag = "2")]
     pub events: ::std::vec::Vec<VmEvent>,
+    /// list of native balance updates.
+    #[prost(message, repeated, tag = "3")]
+    pub balance_change_set: ::std::vec::Vec<VmBalanceChange>,
     /// Gas used during execution.
-    #[prost(uint64, tag = "3")]
+    #[prost(uint64, tag = "4")]
     pub gas_used: u64,
     /// Main status of execution, might contain an error.
-    #[prost(message, optional, tag = "4")]
+    #[prost(message, optional, tag = "5")]
     pub status: ::std::option::Option<VmStatus>,
 }
 /// Compiled source.

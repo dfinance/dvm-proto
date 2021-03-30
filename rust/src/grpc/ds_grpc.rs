@@ -29,7 +29,9 @@ pub struct DsRawResponses {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OraclePriceRequest {
     #[prost(string, tag = "1")]
-    pub ticker: std::string::String,
+    pub currency_1: std::string::String,
+    #[prost(string, tag = "2")]
+    pub currency_2: std::string::String,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OraclePriceResponse {

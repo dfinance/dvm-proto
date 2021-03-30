@@ -31,7 +31,8 @@ message DSRawResponses {
 }
 
 message OraclePriceRequest {
-  string ticker = 1;
+  string currency_1 = 1;
+  string currency_2 = 2;
 }
 
 message OraclePriceResponse {

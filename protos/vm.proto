@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package vm_grpc;
+option go_package = "github.com/dfinance/dvm-proto/go/vm_grpc";
 
 import "common-types.proto";
 
@@ -148,17 +149,31 @@ message VMExecuteScript {
     repeated bytes senders = 1; // owners of contract.
     uint64 max_gas_amount = 2; // maximal total gas specified by wallet to spend for this transaction.
     uint64 gas_unit_price = 3; // maximal price can be paid per gas.
-    bytes code = 4; // compiled contract code.
-    repeated StructIdent type_params = 5; // type parameters.
-    repeated VMArgs args = 6; // Contract arguments.
+    uint64 block = 4; // block.
+    uint64 timestamp = 5; // timestamp.
+    bytes code = 6; // compiled contract code.
+    repeated StructIdent type_params = 7; // type parameters.
+    repeated VMArgs args = 8; // Contract arguments.
+}
+
+message VMBalanceChange {
+  oneof op {
+    types.u128 deposit = 1;
+    types.u128 withdraw = 2;
+  }
+}
+
+message VMBalanceChangeSet {
+  repeated VMBalanceChange change_set = 1;
 }
 
 // Response from VM contains write_set, events, gas used and status for specific contract.
 message VMExecuteResponse {
     repeated VMValue write_set = 1; // using string instead of bytes for now, as map support only ints and strings as keys
     repeated VMEvent events = 2; // list of events executed during contract execution
-    uint64 gas_used = 3; // Gas used during execution.
-    VMStatus status = 4; // Main status of execution, might contain an error.
+    repeated VMBalanceChange balance_change_set = 3; // list of native balance updates.
+    uint64 gas_used = 4; // Gas used during execution.
+    VMStatus status = 5; // Main status of execution, might contain an error.
 }
 
 // GRPC service

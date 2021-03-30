@@ -1,3 +1,10 @@
+//// u128 type.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct U128 {
+    /// Little-endian unsigned 128.
+    #[prost(bytes, tag = "1")]
+    pub buf: std::vec::Vec<u8>,
+}
 /// Type of contract argument.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]

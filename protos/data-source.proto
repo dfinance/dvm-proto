@@ -7,16 +7,16 @@ message DSAccessPath {
   bytes path = 2;
 }
 
+enum ErrorCode {
+  NONE = 0;  // no error
+  BAD_REQUEST = 1;  // crash of compilation, logs will show stacktrace
+  NO_DATA = 2;  // no such module
+}
+
 message DSRawResponse {
   bytes blob = 1;
   ErrorCode error_code = 2;
   string error_message = 3;  // error message from libra, empty if ErrorCode::None
-
-  enum ErrorCode {
-    NONE = 0;  // no error
-    BAD_REQUEST = 1;  // crash of compilation, logs will show stacktrace
-    NO_DATA = 2;  // no such module
-  }
 }
 
 
@@ -39,6 +39,7 @@ message OraclePriceRequest {
 
 message OraclePriceResponse {
   u128 price = 1;
+  ErrorCode error_code = 2;
 }
 
 message NativeBalanceRequest {
@@ -48,6 +49,7 @@ message NativeBalanceRequest {
 
 message NativeBalanceResponse {
   u128 price = 1;
+  ErrorCode error_code = 2;
 }
 
 // GRPC service

@@ -10,23 +10,11 @@ pub struct DsAccessPath {
 pub struct DsRawResponse {
     #[prost(bytes, tag = "1")]
     pub blob: std::vec::Vec<u8>,
-    #[prost(enumeration = "ds_raw_response::ErrorCode", tag = "2")]
+    #[prost(enumeration = "ErrorCode", tag = "2")]
     pub error_code: i32,
     /// error message from libra, empty if ErrorCode::None
     #[prost(string, tag = "3")]
     pub error_message: std::string::String,
-}
-pub mod ds_raw_response {
-    #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-    #[repr(i32)]
-    pub enum ErrorCode {
-        /// no error
-        None = 0,
-        /// crash of compilation, logs will show stacktrace
-        BadRequest = 1,
-        /// no such module
-        NoData = 2,
-    }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct DsAccessPaths {
@@ -54,6 +42,8 @@ pub struct OraclePriceRequest {
 pub struct OraclePriceResponse {
     #[prost(message, optional, tag = "1")]
     pub price: ::std::option::Option<U128>,
+    #[prost(enumeration = "ErrorCode", tag = "2")]
+    pub error_code: i32,
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NativeBalanceRequest {
@@ -66,6 +56,18 @@ pub struct NativeBalanceRequest {
 pub struct NativeBalanceResponse {
     #[prost(message, optional, tag = "1")]
     pub price: ::std::option::Option<U128>,
+    #[prost(enumeration = "ErrorCode", tag = "2")]
+    pub error_code: i32,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum ErrorCode {
+    /// no error
+    None = 0,
+    /// crash of compilation, logs will show stacktrace
+    BadRequest = 1,
+    /// no such module
+    NoData = 2,
 }
 #[doc = r" Generated client implementations."]
 pub mod ds_service_client {

@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package vm_grpc;
+option go_package = "github.com/dfinance/dvm-proto/go/vm_grpc";
 
 import "common-types.proto";
 

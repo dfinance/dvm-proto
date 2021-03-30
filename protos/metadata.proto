@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package metadata_grpc;
+option go_package = "github.com/dfinance/dvm-proto/go/metadata_grpc";
 
 import "common-types.proto";
 

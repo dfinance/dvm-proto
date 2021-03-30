@@ -38,6 +38,35 @@ pub struct DsRawResponses {
     #[prost(bytes, repeated, tag = "1")]
     pub blobs: ::std::vec::Vec<std::vec::Vec<u8>>,
 }
+//// u128 type.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct U128 {
+    /// Little-endian unsigned 128.
+    #[prost(bytes, tag = "1")]
+    pub buf: std::vec::Vec<u8>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct OraclePriceRequest {
+    #[prost(string, tag = "1")]
+    pub ticker: std::string::String,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct OraclePriceResponse {
+    #[prost(message, optional, tag = "1")]
+    pub price: ::std::option::Option<U128>,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct NativeBalanceRequest {
+    #[prost(bytes, tag = "1")]
+    pub address: std::vec::Vec<u8>,
+    #[prost(string, tag = "2")]
+    pub ticker: std::string::String,
+}
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct NativeBalanceResponse {
+    #[prost(message, optional, tag = "1")]
+    pub price: ::std::option::Option<U128>,
+}
 #[doc = r" Generated client implementations."]
 pub mod ds_service_client {
     #![allow(unused_variables, dead_code, missing_docs)]
@@ -100,6 +129,34 @@ pub mod ds_service_client {
             let path = http::uri::PathAndQuery::from_static("/ds_grpc.DSService/MultiGetRaw");
             self.inner.unary(request.into_request(), path, codec).await
         }
+        pub async fn get_oracle_price(
+            &mut self,
+            request: impl tonic::IntoRequest<super::OraclePriceRequest>,
+        ) -> Result<tonic::Response<super::OraclePriceResponse>, tonic::Status> {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/ds_grpc.DSService/GetOraclePrice");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
+        pub async fn get_native_balance(
+            &mut self,
+            request: impl tonic::IntoRequest<super::NativeBalanceRequest>,
+        ) -> Result<tonic::Response<super::NativeBalanceResponse>, tonic::Status> {
+            self.inner.ready().await.map_err(|e| {
+                tonic::Status::new(
+                    tonic::Code::Unknown,
+                    format!("Service was not ready: {}", e.into()),
+                )
+            })?;
+            let codec = tonic::codec::ProstCodec::default();
+            let path = http::uri::PathAndQuery::from_static("/ds_grpc.DSService/GetNativeBalance");
+            self.inner.unary(request.into_request(), path, codec).await
+        }
     }
     impl<T: Clone> Clone for DsServiceClient<T> {
         fn clone(&self) -> Self {
@@ -129,6 +186,14 @@ pub mod ds_service_server {
             &self,
             request: tonic::Request<super::DsAccessPaths>,
         ) -> Result<tonic::Response<super::DsRawResponses>, tonic::Status>;
+        async fn get_oracle_price(
+            &self,
+            request: tonic::Request<super::OraclePriceRequest>,
+        ) -> Result<tonic::Response<super::OraclePriceResponse>, tonic::Status>;
+        async fn get_native_balance(
+            &self,
+            request: tonic::Request<super::NativeBalanceRequest>,
+        ) -> Result<tonic::Response<super::NativeBalanceResponse>, tonic::Status>;
     }
     #[doc = " GRPC service"]
     #[derive(Debug)]
@@ -214,6 +279,70 @@ pub mod ds_service_server {
                         let interceptor = inner.1.clone();
                         let inner = inner.0;
                         let method = MultiGetRawSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = if let Some(interceptor) = interceptor {
+                            tonic::server::Grpc::with_interceptor(codec, interceptor)
+                        } else {
+                            tonic::server::Grpc::new(codec)
+                        };
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/ds_grpc.DSService/GetOraclePrice" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetOraclePriceSvc<T: DsService>(pub Arc<T>);
+                    impl<T: DsService> tonic::server::UnaryService<super::OraclePriceRequest> for GetOraclePriceSvc<T> {
+                        type Response = super::OraclePriceResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::OraclePriceRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).get_oracle_price(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let interceptor = inner.1.clone();
+                        let inner = inner.0;
+                        let method = GetOraclePriceSvc(inner);
+                        let codec = tonic::codec::ProstCodec::default();
+                        let mut grpc = if let Some(interceptor) = interceptor {
+                            tonic::server::Grpc::with_interceptor(codec, interceptor)
+                        } else {
+                            tonic::server::Grpc::new(codec)
+                        };
+                        let res = grpc.unary(method, req).await;
+                        Ok(res)
+                    };
+                    Box::pin(fut)
+                }
+                "/ds_grpc.DSService/GetNativeBalance" => {
+                    #[allow(non_camel_case_types)]
+                    struct GetNativeBalanceSvc<T: DsService>(pub Arc<T>);
+                    impl<T: DsService> tonic::server::UnaryService<super::NativeBalanceRequest>
+                        for GetNativeBalanceSvc<T>
+                    {
+                        type Response = super::NativeBalanceResponse;
+                        type Future = BoxFuture<tonic::Response<Self::Response>, tonic::Status>;
+                        fn call(
+                            &mut self,
+                            request: tonic::Request<super::NativeBalanceRequest>,
+                        ) -> Self::Future {
+                            let inner = self.0.clone();
+                            let fut = async move { (*inner).get_native_balance(request).await };
+                            Box::pin(fut)
+                        }
+                    }
+                    let inner = self.inner.clone();
+                    let fut = async move {
+                        let interceptor = inner.1.clone();
+                        let inner = inner.0;
+                        let method = GetNativeBalanceSvc(inner);
                         let codec = tonic::codec::ProstCodec::default();
                         let mut grpc = if let Some(interceptor) = interceptor {
                             tonic::server::Grpc::with_interceptor(codec, interceptor)

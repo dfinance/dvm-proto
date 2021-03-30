@@ -5,13 +5,12 @@ use std::path::Path;
 use std::fs::canonicalize;
 
 const OUT_DIR: &str = "src/grpc";
-const PB_PATH: [&str; 6] = [
+const PB_PATH: [&str; 5] = [
     "../protos/vm.proto",
     "../protos/common-types.proto",
     "../protos/compiler.proto",
     "../protos/metadata.proto",
     "../protos/data-source.proto",
-    "../protos/data-service.proto",
 ];
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

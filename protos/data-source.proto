@@ -3,34 +3,57 @@ syntax = "proto3";
 package ds_grpc;
 
 message DSAccessPath {
-    bytes address = 1; // AccountAddress
-    bytes path = 2;
+  bytes address = 1; // AccountAddress
+  bytes path = 2;
 }
 
 message DSRawResponse {
-    bytes blob = 1;
-    ErrorCode error_code = 2;
-    string error_message = 3;  // error message from libra, empty if ErrorCode::None
+  bytes blob = 1;
+  ErrorCode error_code = 2;
+  string error_message = 3;  // error message from libra, empty if ErrorCode::None
 
-    enum ErrorCode {
-        NONE = 0;  // no error
-        BAD_REQUEST = 1;  // crash of compilation, logs will show stacktrace
-        NO_DATA = 2;  // no such module
-    }
+  enum ErrorCode {
+    NONE = 0;  // no error
+    BAD_REQUEST = 1;  // crash of compilation, logs will show stacktrace
+    NO_DATA = 2;  // no such module
+  }
 }
 
 
 message DSAccessPaths {
-    repeated DSAccessPath paths = 1;
+  repeated DSAccessPath paths = 1;
 }
 
 message DSRawResponses {
-    repeated bytes blobs = 1;
+  repeated bytes blobs = 1;
 }
 
+/// u128 type.
+message u128 {
+  bytes buf = 1; // Little-endian unsigned 128.
+}
+
+message OraclePriceRequest {
+  string ticker = 1;
+}
+
+message OraclePriceResponse {
+  u128 price = 1;
+}
+
+message NativeBalanceRequest {
+  bytes address = 1;
+  string ticker = 2;
+}
+
+message NativeBalanceResponse {
+  u128 price = 1;
+}
 
 // GRPC service
 service DSService {
-    rpc GetRaw (DSAccessPath) returns (DSRawResponse) {}
-    rpc MultiGetRaw (DSAccessPaths) returns (DSRawResponses) {}
+  rpc GetRaw (DSAccessPath) returns (DSRawResponse) {}
+  rpc MultiGetRaw (DSAccessPaths) returns (DSRawResponses) {}
+  rpc GetOraclePrice (OraclePriceRequest) returns (OraclePriceResponse) {}
+  rpc GetNativeBalance (NativeBalanceRequest) returns (NativeBalanceResponse) {}
 }

@@ -157,8 +157,8 @@ message VMExecuteScript {
 
 message VMBalanceChange {
   oneof op {
-    bytes deposit = 1;  // Little-endian unsigned 128.
-    bytes withdraw = 2; // Little-endian unsigned 128.
+    types.u128 deposit = 1;
+    types.u128 withdraw = 2;
   }
 }
 

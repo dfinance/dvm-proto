@@ -227,12 +227,10 @@ pub struct VmBalanceChange {
 pub mod vm_balance_change {
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Op {
-        /// Little-endian unsigned 128.
-        #[prost(bytes, tag = "1")]
-        Deposit(std::vec::Vec<u8>),
-        /// Little-endian unsigned 128.
-        #[prost(bytes, tag = "2")]
-        Withdraw(std::vec::Vec<u8>),
+        #[prost(message, tag = "1")]
+        Deposit(super::super::types::U128),
+        #[prost(message, tag = "2")]
+        Withdraw(super::super::types::U128),
     }
 }
 #[derive(Clone, PartialEq, ::prost::Message)]

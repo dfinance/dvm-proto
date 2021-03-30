@@ -12,3 +12,8 @@ enum VMTypeTag {
     U8 = 4; // U8
     U128 = 5; // U128 Little-endian unsigned 128 bits integer.
 }
+
+/// u128 type.
+message u128 {
+  bytes buf = 1; // Little-endian unsigned 128.
+}

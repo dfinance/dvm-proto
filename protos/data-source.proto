@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package ds_grpc;
 
+import "common-types.proto";
+
 message DSAccessPath {
   bytes address = 1; // AccountAddress
   bytes path = 2;
@@ -28,17 +30,12 @@ message DSRawResponses {
   repeated bytes blobs = 1;
 }
 
-/// u128 type.
-message u128 {
-  bytes buf = 1; // Little-endian unsigned 128.
-}
-
 message OraclePriceRequest {
   string ticker = 1;
 }
 
 message OraclePriceResponse {
-  u128 price = 1;
+  types.u128 price = 1;
   ErrorCode error_code = 2;
 }
 
@@ -48,7 +45,7 @@ message NativeBalanceRequest {
 }
 
 message NativeBalanceResponse {
-  u128 price = 1;
+  types.u128 price = 1;
   ErrorCode error_code = 2;
 }
 

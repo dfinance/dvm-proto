@@ -26,13 +26,6 @@ pub struct DsRawResponses {
     #[prost(bytes, repeated, tag = "1")]
     pub blobs: ::std::vec::Vec<std::vec::Vec<u8>>,
 }
-//// u128 type.
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct U128 {
-    /// Little-endian unsigned 128.
-    #[prost(bytes, tag = "1")]
-    pub buf: std::vec::Vec<u8>,
-}
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OraclePriceRequest {
     #[prost(string, tag = "1")]
@@ -41,7 +34,7 @@ pub struct OraclePriceRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct OraclePriceResponse {
     #[prost(message, optional, tag = "1")]
-    pub price: ::std::option::Option<U128>,
+    pub price: ::std::option::Option<super::types::U128>,
     #[prost(enumeration = "ErrorCode", tag = "2")]
     pub error_code: i32,
 }
@@ -55,7 +48,7 @@ pub struct NativeBalanceRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NativeBalanceResponse {
     #[prost(message, optional, tag = "1")]
-    pub price: ::std::option::Option<U128>,
+    pub price: ::std::option::Option<super::types::U128>,
     #[prost(enumeration = "ErrorCode", tag = "2")]
     pub error_code: i32,
 }

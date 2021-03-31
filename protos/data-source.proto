@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 package ds_grpc;
-option go_package = "github.com/dfinance/dvm-proto/go/ds_grpc";
 
 import "common-types.proto";
 
@@ -39,6 +38,7 @@ message OraclePriceRequest {
 message OraclePriceResponse {
   types.u128 price = 1;
   ErrorCode error_code = 2;
+  string error_message = 3;  // error message from libra, empty if ErrorCode::None
 }
 
 message NativeBalanceRequest {
@@ -49,6 +49,25 @@ message NativeBalanceRequest {
 message NativeBalanceResponse {
   types.u128 price = 1;
   ErrorCode error_code = 2;
+  string error_message = 3;  // error message from libra, empty if ErrorCode::None
+}
+
+message CurrencyInfoRequest {
+  string ticker = 2;
+}
+
+message CurrencyInfo {
+  bytes denom = 1;
+  uint32 decimals = 2;
+  bool is_token = 3;
+  bytes address = 4;
+  types.u128 total_supply = 5;
+}
+
+message CurrencyInfoResponse {
+  CurrencyInfo info = 1;
+  ErrorCode error_code = 2;
+  string error_message = 3;  // error message from libra, empty if ErrorCode::None
 }
 
 // GRPC service
@@ -57,4 +76,5 @@ service DSService {
   rpc MultiGetRaw (DSAccessPaths) returns (DSRawResponses) {}
   rpc GetOraclePrice (OraclePriceRequest) returns (OraclePriceResponse) {}
   rpc GetNativeBalance (NativeBalanceRequest) returns (NativeBalanceResponse) {}
+  rpc GetCurrencyInfo (CurrencyInfoRequest) returns (CurrencyInfoResponse) {}
 }

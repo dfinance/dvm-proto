@@ -53,7 +53,7 @@ pub struct NativeBalanceRequest {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct NativeBalanceResponse {
     #[prost(message, optional, tag = "1")]
-    pub price: ::std::option::Option<super::types::U128>,
+    pub balance: ::std::option::Option<super::types::U128>,
     #[prost(enumeration = "ErrorCode", tag = "2")]
     pub error_code: i32,
     /// error message from libra, empty if ErrorCode::None

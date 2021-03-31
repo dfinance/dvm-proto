@@ -48,7 +48,7 @@ message NativeBalanceRequest {
 }
 
 message NativeBalanceResponse {
-  types.u128 price = 1;
+  types.u128 balance = 1;
   ErrorCode error_code = 2;
   string error_message = 3;  // error message from libra, empty if ErrorCode::None
 }

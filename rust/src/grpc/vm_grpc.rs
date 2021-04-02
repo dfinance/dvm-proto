@@ -221,15 +221,19 @@ pub struct VmExecuteScript {
 }
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct VmBalanceChange {
-    #[prost(oneof = "vm_balance_change::Op", tags = "1, 2")]
+    #[prost(bytes, tag = "1")]
+    pub address: std::vec::Vec<u8>,
+    #[prost(string, tag = "2")]
+    pub ticker: std::string::String,
+    #[prost(oneof = "vm_balance_change::Op", tags = "3, 4")]
     pub op: ::std::option::Option<vm_balance_change::Op>,
 }
 pub mod vm_balance_change {
     #[derive(Clone, PartialEq, ::prost::Oneof)]
     pub enum Op {
-        #[prost(message, tag = "1")]
+        #[prost(message, tag = "3")]
         Deposit(super::super::types::U128),
-        #[prost(message, tag = "2")]
+        #[prost(message, tag = "4")]
         Withdraw(super::super::types::U128),
     }
 }

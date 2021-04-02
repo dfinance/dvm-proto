@@ -157,9 +157,11 @@ message VMExecuteScript {
 }
 
 message VMBalanceChange {
+  bytes address = 1;
+  string ticker = 2;
   oneof op {
-    types.u128 deposit = 1;
-    types.u128 withdraw = 2;
+    types.u128 deposit = 3;
+    types.u128 withdraw = 4;
   }
 }
 

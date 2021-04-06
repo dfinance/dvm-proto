@@ -1,22 +1,14 @@
 pub extern crate tonic;
 
 pub mod grpc {
-    pub(crate) use ds_grpc as ds;
-
-    pub use super::ds_grpc_ext::*;
-
-    pub mod compiler_grpc;
-    pub mod ds_grpc;
-    pub mod metadata_grpc;
-    pub mod types;
-    pub mod vm_grpc;
+    #[path = "../grpc/dfinance.dvm.rs"]
+    pub mod dfinance_dvm;
+    pub use dfinance_dvm::*;
+    pub use super::grpc_ext::*;
 }
 
-mod ds_grpc_ext {
-    use crate::grpc::ds::ErrorCode;
-
-    use super::grpc::ds::DsAccessPath;
-    use super::grpc::ds::DsRawResponse;
+mod grpc_ext {
+    use crate::grpc::{DsAccessPath, DsRawResponse, ErrorCode};
 
     impl DsAccessPath {
         pub fn new(address: Vec<u8>, path: Vec<u8>) -> Self {
@@ -44,7 +36,7 @@ mod ds_grpc_ext {
 }
 
 pub mod types {
-    pub use crate::grpc::types::U128;
+    use crate::grpc::U128;
 
     impl From<u128> for U128 {
         fn from(val: u128) -> Self {

@@ -1,7 +1,8 @@
 syntax = "proto3";
 
-package compiler_grpc;
-option go_package = "github.com/dfinance/dvm-proto/go/compiler_grpc";
+package dfinance.dvm;
+
+option go_package = "github.com/dfinance/dstation/pkg/types/dvm";
 
 // Compilation unit.
 message CompilationUnit {

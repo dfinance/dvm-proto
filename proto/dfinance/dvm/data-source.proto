@@ -1,9 +1,10 @@
 syntax = "proto3";
 
-package ds_grpc;
-option go_package = "github.com/dfinance/dvm-proto/go/ds_grpc";
+package dfinance.dvm;
 
-import "common-types.proto";
+import "dfinance/dvm/common-types.proto";
+
+option go_package = "github.com/dfinance/dstation/pkg/types/dvm";
 
 message DSAccessPath {
   bytes address = 1; // AccountAddress
@@ -37,7 +38,7 @@ message OraclePriceRequest {
 }
 
 message OraclePriceResponse {
-  types.u128 price = 1;
+  dvm.u128 price = 1;
   ErrorCode error_code = 2;
   string error_message = 3;  // error message from libra, empty if ErrorCode::None
 }
@@ -48,7 +49,7 @@ message NativeBalanceRequest {
 }
 
 message NativeBalanceResponse {
-  types.u128 balance = 1;
+  dvm.u128 balance = 1;
   ErrorCode error_code = 2;
   string error_message = 3;  // error message from libra, empty if ErrorCode::None
 }
@@ -62,7 +63,7 @@ message CurrencyInfo {
   uint32 decimals = 2;
   bool is_token = 3;
   bytes address = 4;
-  types.u128 total_supply = 5;
+  dvm.u128 total_supply = 5;
 }
 
 message CurrencyInfoResponse {

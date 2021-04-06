@@ -1,9 +1,11 @@
 syntax = "proto3";
 
-package vm_grpc;
-option go_package = "github.com/dfinance/dvm-proto/go/vm_grpc";
+package dfinance.dvm;
 
-import "common-types.proto";
+import "dfinance/dvm/common-types.proto";
+import "dfinance/dvm/compiler.proto";
+
+option go_package = "github.com/dfinance/dstation/pkg/types/dvm";
 
 // An `AbortLocation` specifies where a Move program `abort` occurred, either in a function in
 // a module, or in a script.
@@ -132,7 +134,7 @@ message VMValue {
 
 // Contract arguments.
 message VMArgs {
-    types.VMTypeTag type = 1; // Argument type.
+    dvm.VMTypeTag type = 1; // Argument type.
     bytes value = 2; // Argument value.
 }
 
@@ -160,8 +162,8 @@ message VMBalanceChange {
   bytes address = 1;
   string ticker = 2;
   oneof op {
-    types.u128 deposit = 3;
-    types.u128 withdraw = 4;
+    dvm.u128 deposit = 3;
+    dvm.u128 withdraw = 4;
   }
 }
 
@@ -189,13 +191,7 @@ service VMScriptExecutor {
     }
 }
 
-// Compiled source.
-message CompiledUnit {
-    string name = 1; // name of the module/script.
-    bytes bytecode = 2; // bytecode of the compiled module/script
-}
-
 message MultipleCompilationResult {
-    repeated CompiledUnit units = 1;
+    repeated dvm.CompiledUnit units = 1;
     repeated string errors = 2; // list of error messages, empty if successful
 }

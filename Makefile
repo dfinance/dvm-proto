@@ -1,34 +1,13 @@
-PROTO_IN_DIR=./protos/
+PROTO_IN_DIR=./proto/dfinance/dvm
 
-GO_PROTO_OUT_TYPES_DIR=./go/types_grpc/
-GO_PROTO_OUT_COMPILER_DIR=./go/compiler_grpc/
-GO_PROTO_OUT_DS_DIR=./go/ds_grpc/
-GO_PROTO_OUT_METADATA_DIR=./go/metadata_grpc/
-GO_PROTO_OUT_VM_DIR=./go/vm_grpc/
-
-PROTOBUF_TYPES_FILES=./protos/common-types.proto
-PROTOBUF_COMPILER_FILES=./protos/compiler.proto
-PROTOBUF_DS_FILES=./protos/data-source.proto
-PROTOBUF_METADATA_FILES=./protos/metadata.proto
-PROTOBUF_VM_FILES=./protos/vm.proto
-PROTOBUF_DATA_FILES=./protos/data-service.proto
+GO_PROTO_OUT_DIR=./go
 
 all: deps gen-go
 
 gen-go:
-	mkdir -p ${GO_PROTO_OUT_TYPES_DIR}
-	mkdir -p ${GO_PROTO_OUT_COMPILER_DIR}
-	mkdir -p ${GO_PROTO_OUT_DS_DIR}
-	mkdir -p ${GO_PROTO_OUT_METADATA_DIR}
-	mkdir -p ${GO_PROTO_OUT_VM_DIR}
+	mkdir -p ${GO_PROTO_OUT_DIR}
 
-	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_COMPILER_DIR) --go_opt=paths=source_relative $(PROTOBUF_COMPILER_FILES)
-	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_DS_DIR)       --go_opt=paths=source_relative $(PROTOBUF_DS_FILES)
-	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_METADATA_DIR) --go_opt=paths=source_relative $(PROTOBUF_METADATA_FILES)
-	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_VM_DIR)       --go_opt=paths=source_relative $(PROTOBUF_VM_FILES)
-	protoc -I ${PROTO_IN_DIR} --go_out=plugins=grpc:$(GO_PROTO_OUT_TYPES_DIR)    --go_opt=paths=source_relative $(PROTOBUF_TYPES_FILES)
+	protoc --proto_path=./proto --go_out=plugins=grpc:$(GO_PROTO_OUT_DIR) $(PROTO_IN_DIR)/*.proto
 
 deps:
-	@echo "  >  Checking if there is any missing dependencies..."
 	go get -u github.com/golang/protobuf/protoc-gen-go
-	(cd ./go/ && go mod verify)

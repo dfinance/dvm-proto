@@ -21,11 +21,6 @@ jobs:
         # - macos-latest
 
     env:
-      PROTO_IN_DIR: ./protos/
-      GO_PROTO_OUT_VM_DIR: ./go/vm_grpc/
-      GO_PROTO_OUT_DS_DIR: ./go/ds_grpc/
-      PROTOBUF_VM_FILES: ./protos/vm.proto
-      PROTOBUF_DS_FILES: ./protos/data-source.proto
       GO111MODULE: on
       GOPATH: ${{ github.workspace }}
 

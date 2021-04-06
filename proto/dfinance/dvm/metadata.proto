@@ -1,9 +1,10 @@
 syntax = "proto3";
 
-package metadata_grpc;
-option go_package = "github.com/dfinance/dvm-proto/go/metadata_grpc";
+package dfinance.dvm;
 
-import "common-types.proto";
+import "dfinance/dvm/common-types.proto";
+
+option go_package = "github.com/dfinance/dstation/pkg/types/dvm";
 
 // Bytecode.
 message Bytecode {
@@ -38,7 +39,7 @@ message Function {
 message ScriptMeta {
     uint32 signers_count = 1;
     repeated string type_parameters = 2;
-    repeated types.VMTypeTag arguments = 3;
+    repeated dvm.VMTypeTag arguments = 3;
 }
 
 // Module metadata.
